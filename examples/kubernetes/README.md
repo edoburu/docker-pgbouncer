@@ -3,10 +3,15 @@ PgBouncer usage in Kubernetes
 
 These example files give a fully functional standalone PgBouncer inside the cluster. Make sure the secrets are properly configured to match your database.
 
-You could also run a PgBouncer container inside your application Pod. This ensures the PgBouncer Pod lives close to the application, reducing connection time.
+There are in fact multiple ways to use PgBouncer, like:
 
-Installation
-------------
+* Run a stand alone instance in the cluster per application.
+* Add a PgBouncer container inside your application Pod. This ensures the PgBouncer Pod lives close to the application, reducing connection time.
+
+When PgBouncer runs inside the application Pod, it can be accessed via `localhost`. Otherwise, use the service DNS name (`servicename` or `servicename.namespace`) to connect to it.
+
+Cluster-wide example
+--------------------
 
 Edit the secrets file to match the database/username/password settings.
 

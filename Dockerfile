@@ -23,7 +23,8 @@ RUN \
   cd /tmp && \
   rm -rf /tmp/pgbouncer*  && \
   apk del --purge autoconf autoconf-doc automake c-ares-dev curl gcc libc-dev libevent-dev libtool make man libressl-dev pkgconfig
-ADD startup.sh /startup.sh
+ADD entrypoint.sh /entrypoint.sh
 USER postgres
 EXPOSE 5432
-CMD ["/startup.sh"]
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["/usr/bin/pgbouncer", "/etc/pgbouncer/pgbouncer.ini"]

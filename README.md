@@ -9,6 +9,7 @@ Features:
 * Using LibreSSL
 * Configurable using environment variables
 * Uses standard Postgres port 5432, to work transparently for applications.
+* MD5 authentication
 
 
 Available tags

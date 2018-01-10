@@ -1,43 +1,51 @@
 #!/bin/sh
 # Based on https://raw.githubusercontent.com/brainsam/pgbouncer/master/entrypoint.sh
 
+set -e
+
 # Here are some parameters. See all on
 # https://pgbouncer.github.io/config.html
 
-PG_LOG=/var/log/pgbouncer
 PG_CONFIG_DIR=/etc/pgbouncer
+
+if [ -n "$DATABASE_URL" ]; then
+  # Thanks to https://stackoverflow.com/a/17287984/146289
+
+  # Allow to pass values like dj-database-url / django-environ accept
+  proto="$(echo $DATABASE_URL | grep :// | sed -e's,^\(.*://\).*,\1,g')"
+  url="$(echo $DATABASE_URL | sed -e s,$proto,,g)"
+
+  # extract the user and password (if any)
+  userpass="$(echo $url | grep @ | cut -d@ -f1)"
+  DB_PASSWORD="$(echo $userpass | grep : | cut -d: -f2)"
+  if [ -n "$DB_PASSWORD" ]; then
+    DB_USER=$(echo $userpass | grep : | cut -d: -f1)
+  else
+    DB_USER=$userpass
+  fi
+
+  # extract the host -- updated
+  hostport=`echo $url | sed -e s,$userpass@,,g | cut -d/ -f1`
+  port=`echo $hostport | grep : | cut -d: -f2`
+  if [ -n "$port" ]; then
+      DB_HOST=`echo $hostport | grep : | cut -d: -f1`
+      DB_PORT=$port
+  else
+      DB_HOST=$hostport
+  fi
+
+  DB_NAME="$(echo $url | grep / | cut -d/ -f2-)"
+fi
+
+# Write the password with MD5 encryption, to avoid printing it during startup.
+# Notice that `docker inspect` will show unencrypted env variables.
+if [ ! -f ${PG_CONFIG_DIR}/userlist.txt -a -n "$DB_PASSWORD" ]; then
+  encrypted_pass="md5$(echo -n "$DB_PASSWORD$DB_USER" | md5sum | cut -f 1 -d ' ')"
+  echo "\"$DB_USER\" \"$encrypted_pass\"" > ${PG_CONFIG_DIR}/userlist.txt
+fi
 
 if [ ! -f ${PG_CONFIG_DIR}/pgbouncer.ini ]; then
   echo "create pgbouncer config in ${PG_CONFIG_DIR}"
-
-  if [ -n "$DATABASE_URL" ]; then
-    # Thanks to https://stackoverflow.com/a/17287984/146289
-
-    # Allow to pass values like dj-database-url / django-environ accept
-    proto="$(echo $DATABASE_URL | grep :// | sed -e's,^\(.*://\).*,\1,g')"
-    url="$(echo $DATABASE_URL | sed -e s,$proto,,g)"
-
-    # extract the user and password (if any)
-    userpass="$(echo $url | grep @ | cut -d@ -f1)"
-    DB_PASSWORD="$(echo $userpass | grep : | cut -d: -f2)"
-    if [ -n "$DB_PASSWORD" ]; then
-      DB_USER=$(echo $userpass | grep : | cut -d: -f1)
-    else
-      DB_USER=$userpass
-    fi
-
-    # extract the host -- updated
-    hostport=`echo $url | sed -e s,$userpass@,,g | cut -d/ -f1`
-    port=`echo $hostport | grep : | cut -d: -f2`
-    if [ -n "$port" ]; then
-        DB_HOST=`echo $hostport | grep : | cut -d: -f1`
-        DB_PORT=$port
-    else
-        DB_HOST=$hostport
-    fi
-
-    DB_NAME="$(echo $url | grep / | cut -d/ -f2-)"
-  fi
 
 # Config file is in “ini” format. Section names are between “[” and “]”.
 # Lines starting with “;” or “#” are taken as comments and ignored.
@@ -46,17 +54,16 @@ if [ ! -f ${PG_CONFIG_DIR}/pgbouncer.ini ]; then
 ################## Auto generated ##################
 [databases]
 ${DB_NAME:-*} = host=${DB_HOST:?"Setup pgbouncer config error! You must set DB_HOST env"} \
-port=${DB_PORT:-5432} user=${DB_USER:-postgres} \
-${DB_PASSWORD:+password=${DB_PASSWORD}}
+port=${DB_PORT:-5432} user=${DB_USER:-postgres}
 
 [pgbouncer]
 listen_addr = 0.0.0.0
 listen_port = 5432
 unix_socket_dir =
 user = postgres
-${AUTH_FILE:+auth_file = ${AUTH_FILE}\n}\
+auth_file = ${AUTH_FILE:-$PG_CONFIG_DIR/userlist.txt}
 ${AUTH_HBA_FILE:+auth_hba_file = ${AUTH_HBA_FILE}\n}\
-auth_type = ${AUTH_TYPE:-any}
+auth_type = ${AUTH_TYPE:-md5}
 ${AUTH_QUERY:+auth_query = ${AUTH_QUERY}\n}\
 ${POOL_MODE:+pool_mode = ${POOL_MODE}\n}\
 ${MAX_CLIENT_CONN:+max_client_conn = ${MAX_CLIENT_CONN}\n}\
@@ -128,7 +135,7 @@ ${TCP_KEEPINTVL:+tcp_keepintvl = ${TCP_KEEPINTVL}\n}\
 ################## end file ##################
 " > ${PG_CONFIG_DIR}/pgbouncer.ini
 cat ${PG_CONFIG_DIR}/pgbouncer.ini
+echo "Starting $*..."
 fi
 
-echo "Starting pgbouncer..."
-exec pgbouncer ${PG_CONFIG_DIR}/pgbouncer.ini
+exec "$@"

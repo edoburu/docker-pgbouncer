@@ -65,13 +65,13 @@ Connecting should work as expected:
 psql 'postgresql://user:pass@localhost/dbname'
 ```
 
-Almost all settings found in the [pgbouncer.ini](https://pgbouncer.github.io/config.html) can be defined as environment variables, except a few that make little sense in a Docker environment (like port numbers, syslog and pid settings). See the [startup script](https://github.com/edoburu/docker-pgbouncer/blob/master/startup.sh) for details.
+Almost all settings found in the [pgbouncer.ini](https://pgbouncer.github.io/config.html) can be defined as environment variables, except a few that make little sense in a Docker environment (like port numbers, syslog and pid settings). See the [entrypoint script](https://github.com/edoburu/docker-pgbouncer/blob/master/entrypoint.sh) for details.
 
 
 Kubernetes integration
 ----------------------
 
-For example in Kubernetes, see the [example folder](https://github.com/edoburu/docker-pgbouncer/tree/master/examples/kubernetes).
+For example in Kubernetes, see the [examples/kubernetes folder](https://github.com/edoburu/docker-pgbouncer/tree/master/examples/kubernetes).
 
 
 PostgreSQL configuration
@@ -93,8 +93,7 @@ When the default `pgbouncer.ini` is not sufficient, or you'd like to let multipl
 ```Dockerfile
 FROM edoburu/pgbouncer:1.8.1
 
-COPY pgbouncer.ini /etc/pgbouncer/pgbouncer.ini
-COPY userlist.txt /etc/pgbouncer/userlist.txt
+COPY pgbouncer.ini userlist.txt /etc/pgbouncer/
 ```
 
 When the `pgbouncer.ini` file exists, the startup script will not override it. An extra entry will be written to `userlist.txt` when `DATABASE_URL` contains credentials, or `DB_USER` and `DB_PASSWORD` are defined.

@@ -97,7 +97,7 @@ COPY pgbouncer.ini /etc/pgbouncer/pgbouncer.ini
 COPY userlist.txt /etc/pgbouncer/userlist.txt
 ```
 
-When any of these files already exist, the startup script will not override them.
+When the `pgbouncer.ini` file exists, the startup script will not override it. An extra entry will be written to `userlist.txt` when `DATABASE_URL` contains credentials, or `DB_USER` and `DB_PASSWORD` are defined.
 
 The `userlist.txt` file uses the following format:
 

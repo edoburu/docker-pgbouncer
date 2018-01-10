@@ -38,18 +38,7 @@ spec:
             tcpSocket:
               port: 5432
             periodSeconds: 60
-          lifecycle:
-            preStop:
-              exec:
-                # https://github.com/kubernetes/contrib/issues/1140
-                # This hack avoids 0% downtime during deploys.
-                # After the preStop, containers receive a SIGTERM meaning:
-                # "cleanup what you're doing and stop accepting new work".
-                # Yet traffic may still briefly be sent to it by the ingress
-                # controller. This hack delays that SIGTERM moment so the new
-                # container is already actively used to handle traffic.
-                command: ["sleep", "15"]
           securityContext:
             allowPrivilegeEscalation: false
-            #capabilities:
-            #  drop: ['all']
+            capabilities:
+              drop: ['all']

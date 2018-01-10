@@ -18,8 +18,9 @@ spec:
         app: pgbouncer-example
     spec:
       terminationGracePeriodSeconds: 150 # wait for all db client timeouts
-      nodeSelector:
-        purpose: apps
+      # Optional: keep the POD close to the apps:
+      #nodeSelector:
+      #  purpose: apps
       containers:
         - name: pgbouncer
           image: edoburu/pgbouncer:1.8.1

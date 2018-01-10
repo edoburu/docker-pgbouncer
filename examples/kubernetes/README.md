@@ -1,8 +1,9 @@
 PgBouncer usage in Kubernetes
 =============================
 
-These example files give a fully functional PgBouncer inside the cluster.
-Make sure the secrets are properly configured to match your database.
+These example files give a fully functional standalone PgBouncer inside the cluster. Make sure the secrets are properly configured to match your database.
+
+You could also run a PgBouncer container inside your application Pod. This ensures the PgBouncer Pod lives close to the application, reducing connection time.
 
 Installation
 ------------

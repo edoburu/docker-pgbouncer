@@ -42,6 +42,22 @@ kubectl delete -f https://raw.githubusercontent.com/edoburu/docker-pgbouncer/mas
 kubectl delete secret pgbouncer-example-config
 ```
 
+Connecting to the admin console
+-------------------------------
+
+When an *admin user* is defined, and it has a password in the zuserlist.txt`, it can connect to the special `pgbouncer` database:
+
+```psql postgres://postgres@pgbouncer-example/pgbouncer```
+
+The [admin console commands](https://pgbouncer.github.io/usage.html#admin-console) Commands can be executed, for example:
+
+```
+SHOW STATS;
+SHOW SERVERS;
+SHOW CLIENTS;
+SHOW POOLS;
+```
+
 About create-secrets
 --------------------
 

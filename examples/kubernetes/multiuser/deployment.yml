@@ -24,17 +24,13 @@ spec:
       containers:
         - name: pgbouncer
           image: edoburu/pgbouncer:1.8.1
-          imagePullPolicy: Always
+          #imagePullPolicy: Always
           ports:
             - containerPort: 5432
-          envFrom:
-            - secretRef:
-               name: pgbouncer-example-env
-          env:
-            - name: POOL_MODE
-              value: session
-            - name: SERVER_RESET_QUERY
-              value: DISCARD ALL
+          volumeMounts:
+            - name: configfiles
+              mountPath: "/etc/pgbouncer"
+              readOnly: true  # writes update the secret!
           livenessProbe:
             tcpSocket:
               port: 5432
@@ -43,3 +39,7 @@ spec:
             allowPrivilegeEscalation: false
             capabilities:
               drop: ['all']
+      volumes:
+        - name: configfiles
+          secret:
+            secretName: pgbouncer-example-config

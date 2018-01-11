@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pgbouncer-example
+  namespace: default
+  labels:
+    app: pgbouncer-example
+spec:
+  strategy:
+    rollingUpdate:
+      maxUnavailable: 0  # Avoid Terminating and ContainerCreating at the same time
+  selector:
+    matchLabels:
+      app: pgbouncer-example
+  template:
+    metadata:
+      labels:
+        app: pgbouncer-example
+    spec:
+      terminationGracePeriodSeconds: 150 # wait for all db client timeouts
+      # Optional: keep the POD close to the apps:
+      #nodeSelector:
+      #  purpose: apps
+      containers:
+        - name: pgbouncer
+          image: edoburu/pgbouncer:1.8.1
+          #imagePullPolicy: Always
+          ports:
+            - containerPort: 5432
+          envFrom:
+            - secretRef:
+               name: pgbouncer-example-env
+          env:
+            - name: POOL_MODE
+              value: session
+            - name: SERVER_RESET_QUERY
+              value: DISCARD ALL
+          livenessProbe:
+            tcpSocket:
+              port: 5432
+            periodSeconds: 60
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ['all']

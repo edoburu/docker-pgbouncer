@@ -10,7 +10,7 @@ spec:
   ports:
     - port: 5432
       targetPort: 5432
-      protocol: TCP 
+      protocol: TCP
       name: postgres
   selector:
     app: pgbouncer-example

@@ -37,12 +37,10 @@ Usage
 ```sh
 docker run --rm \
     -e DATABASE_URL="postgres://user:pass@postgres-host/database" \
-    -e POOL_MODE=session \
-    -e SERVER_RESET_QUERY="DISCARD ALL" \
-    -e MAX_CLIENT_CONN=100 \
-    -p 5432:5432
+    -p 5432:5432 \
     edoburu/pgbouncer
 ```
+
 
 Or using separate variables:
 
@@ -52,10 +50,7 @@ docker run --rm \
     -e DB_PASSWORD=pass \
     -e DB_HOST=postgres-host \
     -e DB_NAME=database \
-    -e POOL_MODE=session \
-    -e SERVER_RESET_QUERY="DISCARD ALL" \
-    -e MAX_CLIENT_CONN=100 \
-    -p 5432:5432
+    -p 5432:5432 \
     edoburu/pgbouncer
 ```
 
@@ -65,7 +60,20 @@ Connecting should work as expected:
 psql 'postgresql://user:pass@localhost/dbname'
 ```
 
-Almost all settings found in the [pgbouncer.ini](https://pgbouncer.github.io/config.html) can be defined as environment variables, except a few that make little sense in a Docker environment (like port numbers, syslog and pid settings). See the [entrypoint script](https://github.com/edoburu/docker-pgbouncer/blob/master/entrypoint.sh) for details.
+Configuration
+-------------
+
+Almost all settings found in the [pgbouncer.ini](https://pgbouncer.github.io/config.html) can be defined as environment variables, except a few that make little sense in a Docker environment (like port numbers, syslog and pid settings). See the [entrypoint script](https://github.com/edoburu/docker-pgbouncer/blob/master/entrypoint.sh) for details. For example:
+
+```sh
+docker run --rm \
+    -e DATABASE_URL="postgres://user:pass@postgres-host/database" \
+    -e POOL_MODE=session \
+    -e SERVER_RESET_QUERY="DISCARD ALL" \
+    -e MAX_CLIENT_CONN=100 \
+    -p 5432:5432
+    edoburu/pgbouncer
+```
 
 
 Kubernetes integration
@@ -88,13 +96,27 @@ host    all             all             10.0.0.0/8              md5
 Using a custom configuration
 ----------------------------
 
-When the default `pgbouncer.ini` is not sufficient, or you'd like to let multiple users connect through a single PgBouncer instance, extend the `Dockerfile`:
+When the default `pgbouncer.ini` is not sufficient, or you'd like to let multiple users connect through a single PgBouncer instance, mount an updated configuration:
+
+```sh
+docker run --rm \
+    -e DB_USER=user \
+    -e DB_PASSWORD=pass \
+    -e DB_HOST=postgres-host \
+    -e DB_NAME=database \
+    -v pgbouncer.ini:/etc/pgbouncer/pgbouncer.ini:ro
+    -p 5432:5432
+    edoburu/pgbouncer
+```
+
+
+Or extend the `Dockerfile`:
 
 ```Dockerfile
 FROM edoburu/pgbouncer:1.8.1
-
 COPY pgbouncer.ini userlist.txt /etc/pgbouncer/
 ```
+
 
 When the `pgbouncer.ini` file exists, the startup script will not override it. An extra entry will be written to `userlist.txt` when `DATABASE_URL` contains credentials, or `DB_USER` and `DB_PASSWORD` are defined.
 
@@ -104,8 +126,15 @@ The `userlist.txt` file uses the following format:
 "username" "plaintext-password"
 ```
 
+
 or:
 
 ```
 "username" "md5<md5 of password + username>"
+```
+
+Use [examples/generate-userlist](https://github.com/edoburu/docker-pgbouncer/blob/master/examples/generate-userlist) to generate this file:
+
+```
+examples/generate-userlist >> userlist.txt
 ```

@@ -1,55 +1,30 @@
 PgBouncer usage in Kubernetes
 =============================
 
-These example files give a fully functional standalone PgBouncer inside the cluster. Make sure the secrets are properly configured to match your database.
+TD;DR:
 
-There are in fact multiple ways to use PgBouncer, like:
+* [singleuser](https://github.com/edoburu/docker-pgbouncer/tree/master/examples/kubernetes/singleuser) - one PgBouncer for a single database.
+* [multiuser](https://github.com/edoburu/docker-pgbouncer/tree/master/examples/kubernetes/multiuser) - one PgBouncer for multiple databases and users.
 
-* Run a stand alone instance in the cluster per application.
-* Add a PgBouncer container inside your application Pod. This ensures the PgBouncer Pod lives close to the application, reducing connection time.
+Possible usages
+---------------
+
+Using PgBouncer is possible in different situations:
+
+* A single instance per application (see the [singleuser example](https://github.com/edoburu/docker-pgbouncer/tree/master/examples/kubernetes/singleuser))
+* A shared instance for many applications (see the [multiuser example](https://github.com/edoburu/docker-pgbouncer/tree/master/examples/kubernetes/multiuser)).
+* A single instance inside your application pod. This ensures the PgBouncer Pod lives close to the application, reducing connection time.
 
 When PgBouncer runs inside the application Pod, it can be accessed via `localhost`. Otherwise, use the service DNS name (`servicename` or `servicename.namespace`) to connect to it.
 
-Cluster-wide example
---------------------
-
-Edit the secrets file to match the database/username/password settings.
-
-```sh
-kubectl create secret generic pgbouncer-example-env --from-env-file="pgbouncer-example-env.secrets"  # or run ./create-secrets
-kubectl apply -f https://raw.githubusercontent.com/edoburu/docker-pgbouncer/master/examples/kubernetes/service.yml
-kubectl apply -f https://raw.githubusercontent.com/edoburu/docker-pgbouncer/master/examples/kubernetes/deployment.yml
-```
-
-The `create-secrets` is a small wrapper to allow creating secrets without having to do BASE64 encoding yourself. Given an input file like:
-
-```
-DB_HOST=postgres.default
-DB_USER=username
-DB_PASSWORD=password
-```
-
-It generates the following YAML, and either creates the secret or updates the existing secret.
-
-```yaml
-apiVersion: v1
-data:
-  DB_HOST: cG9zdGdyZXMuZGVmYXVsdA==
-  DB_PASSWORD: cGFzc3dvcmQ=
-  DB_USER: dXNlcm5hbWU=
-kind: Secret
-metadata:
-  name: pgbouncer-example-env
-  namespace: default
-```
 
 Connecting
 ----------
 
-Inside any pods, the service should be reachable with the DNS name `postgres-example` and `postgres-example.default` (FQDN: `servicename.namespace.svc.cluster.local`). Thus you can connect to it using:
+Inside any Pod, the example service should be reachable with the DNS name `pgbouncer-example` and `pgbouncer-example.default` (FQDN: `servicename.namespace.svc.cluster.local`). Thus you can connect to it using:
 
 ```sh
-psql 'postgresql://user:pass@pgbouncer.default/dbname'
+psql 'postgresql://user:pass@pgbouncer-example.default/dbname'
 ```
 
 From the host machine, use the service ClusterIP adress, found via:
@@ -69,7 +44,8 @@ Removing the example
 ---------------------
 
 ```sh
-kubectl delete -f https://raw.githubusercontent.com/edoburu/docker-pgbouncer/master/examples/kubernetes/service.yml
-kubectl delete -f https://raw.githubusercontent.com/edoburu/docker-pgbouncer/master/examples/kubernetes/deployment.yml
-kubectl delete secret pgbouncer-example-env
+kubectl delete deployment pgbouncer-example
+kubectl delete service pgbouncer-example
+kubectl delete secret pgbouncer-example-env     # singleuser example
+kubectl delete secret pgbouncer-example-config  # multiuser example
 ```

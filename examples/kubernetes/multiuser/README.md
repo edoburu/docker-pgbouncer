@@ -45,17 +45,26 @@ kubectl delete secret pgbouncer-example-config
 Connecting to the admin console
 -------------------------------
 
-When an *admin user* is defined, and it has a password in the zuserlist.txt`, it can connect to the special `pgbouncer` database:
+When an *admin user* is defined, and it has a password in the `userlist.txt`, it can connect to the special `pgbouncer` database:
 
-```psql postgres://postgres@pgbouncer-example/pgbouncer```
+```
+psql postgres://postgres@pgbouncer-example/pgbouncer
+```
 
-The [admin console commands](https://pgbouncer.github.io/usage.html#admin-console) Commands can be executed, for example:
+The [admin console commands](https://pgbouncer.github.io/usage.html#admin-console) can be executed, for example:
 
 ```
 SHOW STATS;
 SHOW SERVERS;
 SHOW CLIENTS;
 SHOW POOLS;
+```
+
+And it allows disconnecting from the backend database (e.g. for restarts) while the web applications don't get any disconnected connections:
+
+```
+PAUSE;
+RESUME;
 ```
 
 About create-secrets

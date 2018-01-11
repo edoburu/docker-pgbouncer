@@ -1,7 +1,7 @@
 PgBouncer usage in Kubernetes
 =============================
 
-TD;DR:
+TL;DR:
 
 * [singleuser](https://github.com/edoburu/docker-pgbouncer/tree/master/examples/kubernetes/singleuser) - one PgBouncer for a single database.
 * [multiuser](https://github.com/edoburu/docker-pgbouncer/tree/master/examples/kubernetes/multiuser) - one PgBouncer for multiple databases and users.

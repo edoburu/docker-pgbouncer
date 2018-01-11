@@ -17,7 +17,6 @@ spec:
       labels:
         app: pgbouncer-example
     spec:
-      terminationGracePeriodSeconds: 150 # wait for all db client timeouts
       # Optional: keep the POD close to the apps:
       #nodeSelector:
       #  purpose: apps
@@ -35,6 +34,11 @@ spec:
             tcpSocket:
               port: 5432
             periodSeconds: 60
+          lifecycle:
+            preStop:
+              exec:
+                # Allow existing queries clients to complete within 120 seconds
+                command: ["/bin/sh", "-c", "killall -INT pgbouncer && sleep 120"]
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:

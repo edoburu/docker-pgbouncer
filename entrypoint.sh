@@ -55,13 +55,12 @@ if [ ! -f ${PG_CONFIG_DIR}/pgbouncer.ini ]; then
 ################## Auto generated ##################
 [databases]
 ${DB_NAME:-*} = host=${DB_HOST:?"Setup pgbouncer config error! You must set DB_HOST env"} \
-port=${DB_PORT:-5432} user=${DB_USER:-postgres}
+port=${DB_PORT:-5432} dbname=${DB_NAME:-postgres} user=${DB_USER:-postgres}
 
 [pgbouncer]
 listen_addr = 0.0.0.0
 listen_port = 5432
 unix_socket_dir =
-user = postgres
 auth_file = ${AUTH_FILE:-$PG_CONFIG_DIR/userlist.txt}
 ${AUTH_HBA_FILE:+auth_hba_file = ${AUTH_HBA_FILE}\n}\
 auth_type = ${AUTH_TYPE:-md5}
@@ -85,7 +84,7 @@ ${LOG_DISCONNECTIONS:+log_disconnections = ${LOG_DISCONNECTIONS}\n}\
 ${LOG_POOLER_ERRORS:+log_pooler_errors = ${LOG_POOLER_ERRORS}\n}\
 ${STATS_PERIOD:+stats_period = ${STATS_PERIOD}\n}\
 ${VERBOSE:+verbose = ${VERBOSE}\n}\
-admin_users = ${ADMIN_USERS:-postgres}
+admin_users = ${DB_USER:-postgres}
 ${STATS_USERS:+stats_users = ${STATS_USERS}\n}\
 
 # Connection sanity checks, timeouts

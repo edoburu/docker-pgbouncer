@@ -1,3 +1,0 @@
-; Generated using ../../generate-authuser
-"username" "md526e5ed55fe3952046497e789f52ff2e7"
-"username2" "md509bd7a95bc35acd4f52b863bdac071ab"

@@ -1,7 +1,6 @@
 FROM alpine:3.7
 ARG VERSION=1.8.1
 
-# Inspiration from https://github.com/gmr/alpine-pgbouncer/blob/master/Dockerfile
 RUN \
   # Download
   apk --update add autoconf autoconf-doc automake c-ares c-ares-dev curl gcc libc-dev libevent libevent-dev libtool make man libressl-dev pkgconfig && \

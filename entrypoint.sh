@@ -58,8 +58,8 @@ ${DB_NAME:-*} = host=${DB_HOST:?"Setup pgbouncer config error! You must set DB_H
 port=${DB_PORT:-5432} user=${DB_USER:-postgres}
 
 [pgbouncer]
-listen_addr = 0.0.0.0
-listen_port = 5432
+listen_addr = ${LISTEN_ADDR:-0.0.0.0}
+listen_port = ${LISTEN_PORT:-5432}
 unix_socket_dir =
 user = postgres
 auth_file = ${AUTH_FILE:-$PG_CONFIG_DIR/userlist.txt}

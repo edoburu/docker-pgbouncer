@@ -1,5 +1,5 @@
 FROM alpine:3.7
-ARG VERSION=1.8.1
+ARG VERSION=1.9.0
 
 # Inspiration from https://github.com/gmr/alpine-pgbouncer/blob/master/Dockerfile
 RUN \

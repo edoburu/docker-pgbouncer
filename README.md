@@ -116,7 +116,7 @@ docker run --rm \
 Or extend the `Dockerfile`:
 
 ```Dockerfile
-FROM edoburu/pgbouncer:1.8.1
+FROM edoburu/pgbouncer:1.9.0
 COPY pgbouncer.ini userlist.txt /etc/pgbouncer/
 ```
 

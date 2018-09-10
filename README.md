@@ -5,10 +5,11 @@ This is a minimal PgBouncer image, based on Alpine Linux.
 
 Features:
 
-* Very small, quick to pull (just 8MB)
+* Very small, quick to pull (just 15MB)
 * Using LibreSSL
 * Configurable using environment variables
 * Uses standard Postgres port 5432, to work transparently for applications.
+* Includes PostgreSQL client tools such as ``psql``, ``pg_isready``
 * MD5 authentication by default.
 * `/etc/pgbouncer/pgbouncer.ini` and `/etc/pbbouncer/userlist.txt` are auto-created if they don't exist.
 

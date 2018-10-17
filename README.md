@@ -141,3 +141,30 @@ Use [examples/generate-userlist](https://github.com/edoburu/docker-pgbouncer/blo
 ```
 examples/generate-userlist >> userlist.txt
 ```
+
+Connecting to the admin console
+-------------------------------
+
+When an *admin user* is defined, and it has a password in the `userlist.txt`, it can connect to the special `pgbouncer` database:
+
+```
+psql postgres://postgres@hostname-of-container/pgbouncer  # outside container
+psql postgres://127.0.0.1/pgbouncer                       # inside container
+```
+
+Hence this requires a custom configuration, or a mount of a custom ``userlist.txt`` in the docker file.
+Various [admin console commands](https://pgbouncer.github.io/usage.html#admin-console) can be executed, for example:
+
+```
+SHOW STATS;
+SHOW SERVERS;
+SHOW CLIENTS;
+SHOW POOLS;
+```
+
+And it allows temporary disconnecting the backend database (e.g. for restarts) while the web applications keep a connection to PgBouncer:
+
+```
+PAUSE;
+RESUME;
+```

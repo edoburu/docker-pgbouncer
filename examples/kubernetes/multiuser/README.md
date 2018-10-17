@@ -48,10 +48,11 @@ Connecting to the admin console
 When an *admin user* is defined, and it has a password in the `userlist.txt`, it can connect to the special `pgbouncer` database:
 
 ```
-psql postgres://postgres@pgbouncer-example/pgbouncer
+psql postgres://postgres@pgbouncer-example/pgbouncer  # outside container
+psql postgres://127.0.0.1/pgbouncer                   # inside container
 ```
 
-The [admin console commands](https://pgbouncer.github.io/usage.html#admin-console) can be executed, for example:
+Various [admin console commands](https://pgbouncer.github.io/usage.html#admin-console) can be executed, for example:
 
 ```
 SHOW STATS;
@@ -60,7 +61,7 @@ SHOW CLIENTS;
 SHOW POOLS;
 ```
 
-And it allows disconnecting from the backend database (e.g. for restarts) while the web applications don't get any disconnected connections:
+And it allows temporary disconnecting the backend database (e.g. for restarts) while the web applications keep a connection to PgBouncer:
 
 ```
 PAUSE;

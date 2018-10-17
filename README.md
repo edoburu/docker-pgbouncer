@@ -28,8 +28,8 @@ Available tags
 Base images:
 
 - `latest` ([Dockerfile](https://github.com/edoburu/docker-pgbouncer/blob/master/Dockerfile)) - Default and latest version.
-- `1.9.0` ([Dockerfile](https://github.com/edoburu/docker-pgbouncer/blob/v1.9.x/Dockerfile)) - Default and latest version.
-- `1.8.1` ([Dockerfile](https://github.com/edoburu/docker-pgbouncer/blob/v1.8.x/Dockerfile)) - Default and latest version.
+- `1.9.0` ([Dockerfile](https://github.com/edoburu/docker-pgbouncer/blob/v1.9.x/Dockerfile)) - Latest version.
+- `1.8.1` ([Dockerfile](https://github.com/edoburu/docker-pgbouncer/blob/v1.8.x/Dockerfile)) - Previous version.
 
 Images are automatically rebuild on Alpine Linux updates.
 

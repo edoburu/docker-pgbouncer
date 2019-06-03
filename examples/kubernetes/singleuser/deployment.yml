@@ -23,7 +23,7 @@ spec:
       #  purpose: apps
       containers:
         - name: pgbouncer
-          image: edoburu/pgbouncer:1.8.1
+          image: edoburu/pgbouncer:1.9.0
           #imagePullPolicy: Always
           ports:
             - containerPort: 5432

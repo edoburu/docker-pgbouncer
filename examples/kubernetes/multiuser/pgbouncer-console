@@ -1,0 +1,10 @@
+#!/bin/sh
+# Access the pgbouncer console by running "psql" inside the container
+
+KUBE_NAMESPACE="infra"
+DEPLOYMENT_NAME="pgbouncer-apps"
+APP_NAME="$DEPLOYMENT_NAME"
+
+pod=$(kubectl get pod -n $KUBE_NAMESPACE -l "app=pgbouncer-apps" -o name | cut -f1 -d' ')
+echo "Connecting to pgbouncer pod $pod, starting psql:"
+kubectl exec -n $KUBE_NAMESPACE -it "$pod" psql postgres://127.0.0.1/pgbouncer

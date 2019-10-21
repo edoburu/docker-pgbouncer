@@ -66,6 +66,7 @@ user = postgres
 auth_file = ${AUTH_FILE:-$PG_CONFIG_DIR/userlist.txt}
 ${AUTH_HBA_FILE:+auth_hba_file = ${AUTH_HBA_FILE}\n}\
 auth_type = ${AUTH_TYPE:-md5}
+${AUTH_USER:+auth_user = ${AUTH_USER}\n}\
 ${AUTH_QUERY:+auth_query = ${AUTH_QUERY}\n}\
 ${POOL_MODE:+pool_mode = ${POOL_MODE}\n}\
 ${MAX_CLIENT_CONN:+max_client_conn = ${MAX_CLIENT_CONN}\n}\

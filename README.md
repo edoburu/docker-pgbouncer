@@ -143,6 +143,9 @@ Use [examples/generate-userlist](https://github.com/edoburu/docker-pgbouncer/blo
 examples/generate-userlist >> userlist.txt
 ```
 
+You can also connect with a single user to PgBouncer, and from there retrieve the actual database password
+by setting ``AUTH_USER``. See the example from: <https://www.cybertec-postgresql.com/en/pgbouncer-authentication-made-easy/>
+
 Connecting to the admin console
 -------------------------------
 

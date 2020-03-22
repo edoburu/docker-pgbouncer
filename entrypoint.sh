@@ -16,7 +16,7 @@ if [ -n "$DATABASE_URL" ]; then
   url="$(echo $DATABASE_URL | sed -e s,$proto,,g)"
 
   # extract the user and password (if any)
-  userpass="$(echo $url | grep @ | cut -d@ -f1)"
+  userpass=$(echo $url | grep @ | sed -r 's/^(.*)@([^@]*)$/\1/')
   DB_PASSWORD="$(echo $userpass | grep : | cut -d: -f2)"
   if [ -n "$DB_PASSWORD" ]; then
     DB_USER=$(echo $userpass | grep : | cut -d: -f1)

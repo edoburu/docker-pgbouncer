@@ -1,10 +1,10 @@
-FROM alpine:3.7
-ARG VERSION=1.11.0
+FROM alpine:3.11
+ARG VERSION=1.12.0
 
 # Inspiration from https://github.com/gmr/alpine-pgbouncer/blob/master/Dockerfile
 RUN \
   # Download
-  apk --update add autoconf autoconf-doc automake udns udns-dev curl gcc libc-dev libevent libevent-dev libtool make man libressl-dev pkgconfig postgresql-client && \
+  apk --update add autoconf autoconf-doc automake udns udns-dev curl gcc libc-dev libevent libevent-dev libtool make man openssl-dev pkgconfig postgresql-client && \
   curl -o  /tmp/pgbouncer-$VERSION.tar.gz -L https://pgbouncer.github.io/downloads/files/$VERSION/pgbouncer-$VERSION.tar.gz && \
   cd /tmp && \
   # Unpack, compile
@@ -18,6 +18,8 @@ RUN \
   # entrypoint installs the configuation, allow to write as postgres user
   cp etc/pgbouncer.ini /etc/pgbouncer/pgbouncer.ini.example && \
   cp etc/userlist.txt /etc/pgbouncer/userlist.txt.example && \
+  addgroup -g 70 -S postgres 2>/dev/null && \
+  adduser -u 70 -S -D -H -h /var/lib/postgresql -g "Postgres user" -s /bin/sh -G postgres postgres 2>/dev/null && \
   chown -R postgres /var/run/pgbouncer /etc/pgbouncer && \
   # Cleanup
   cd /tmp && \

@@ -6,7 +6,6 @@ This is a minimal PgBouncer image, based on Alpine Linux.
 Features:
 
 * Very small, quick to pull (just 15MB)
-* Using LibreSSL
 * Configurable using environment variables
 * Uses standard Postgres port 5432, to work transparently for applications.
 * Includes PostgreSQL client tools such as ``psql``, ``pg_isready``
@@ -28,9 +27,10 @@ Available tags
 Base images:
 
 - `latest` ([Dockerfile](https://github.com/edoburu/docker-pgbouncer/blob/master/Dockerfile)) - Default and latest version.
-- `1.11.0` ([Dockerfile](https://github.com/edoburu/docker-pgbouncer/blob/v1.11.x/Dockerfile)) - Latest version.
-- `1.9.0` ([Dockerfile](https://github.com/edoburu/docker-pgbouncer/blob/v1.9.x/Dockerfile)) - Latest version.
-- `1.8.1` ([Dockerfile](https://github.com/edoburu/docker-pgbouncer/blob/v1.8.x/Dockerfile)) - Previous version.
+- `1.12.0` ([Dockerfile](https://github.com/edoburu/docker-pgbouncer/blob/v1.12.x/Dockerfile)) - Latest version.
+- `1.11.0` ([Dockerfile](https://github.com/edoburu/docker-pgbouncer/blob/v1.11.x/Dockerfile)) - previous version.
+- `1.9.0` ([Dockerfile](https://github.com/edoburu/docker-pgbouncer/blob/v1.9.x/Dockerfile))
+- `1.8.1` ([Dockerfile](https://github.com/edoburu/docker-pgbouncer/blob/v1.8.x/Dockerfile))
 
 Images are automatically rebuild on Alpine Linux updates.
 

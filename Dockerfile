@@ -15,6 +15,9 @@ RUN \
   # Manual install
   cp pgbouncer /usr/bin && \
   mkdir -p /etc/pgbouncer /var/log/pgbouncer /var/run/pgbouncer && \
+  # support arbitrary user IDs (openshift)
+  chgrp -R 0 /etc/pgbouncer /var/log/pgbouncer /var/run/pgbouncer && \
+  chmod g=u /etc/pgbouncer /var/log/pgbouncer /var/run/pgbouncer && \
   # entrypoint installs the configuation, allow to write as postgres user
   cp etc/pgbouncer.ini /etc/pgbouncer/pgbouncer.ini.example && \
   cp etc/userlist.txt /etc/pgbouncer/userlist.txt.example && \

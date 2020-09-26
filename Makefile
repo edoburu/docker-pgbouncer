@@ -1,5 +1,10 @@
-all:
-	docker build --pull -t edoburu/pgbouncer .
+IMAGE_NAME=lapierre/pgbouncer
+IMAGE_VERSION=1.14.0
 
-clean:
-	docker rmi edoburu/pgbouncer:latest
+docker:
+	        docker build -t $(IMAGE_NAME):$(IMAGE_VERSION) .
+			docker tag $(IMAGE_NAME):$(IMAGE_VERSION) $(IMAGE_NAME):latest
+
+push:
+			docker push $(IMAGE_NAME):$(IMAGE_VERSION)
+			docker push $(IMAGE_NAME):latest

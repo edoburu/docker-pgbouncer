@@ -86,6 +86,12 @@ Kubernetes integration
 For example in Kubernetes, see the [examples/kubernetes folder](https://github.com/edoburu/docker-pgbouncer/tree/master/examples/kubernetes).
 
 
+Docker Compose
+--------------
+
+For example in Docker Compose, see the [examples/docker-compose folder](https://github.com/alapierre/docker-pgbouncer/tree/master/examples/docker-compose).
+
+
 PostgreSQL configuration
 ------------------------
 

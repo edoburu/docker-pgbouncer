@@ -11,7 +11,7 @@ services:
       - POSTGRES_DB=test
 
   pgbouncer:
-    image: lapierre/pgbouncer
+    image: edoburu/pgbouncer
     environment:
        - DB_USER=dbuser
        - DB_PASSWORD=hbZkzny5xrvVH

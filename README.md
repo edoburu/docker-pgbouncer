@@ -26,9 +26,10 @@ Available tags
 
 Base images:
 
-- `latest` ([Dockerfile](https://github.com/edoburu/docker-pgbouncer/blob/master/Dockerfile)) - Default and latest version.
-- `1.12.0` ([Dockerfile](https://github.com/edoburu/docker-pgbouncer/blob/v1.12.x/Dockerfile)) - Latest version.
-- `1.11.0` ([Dockerfile](https://github.com/edoburu/docker-pgbouncer/blob/v1.11.x/Dockerfile)) - previous version.
+- `1.15.0` ([Dockerfile](https://github.com/edoburu/docker-pgbouncer/blob/master/Dockerfile)) - Default and latest version.
+- `1.14.0` ([Dockerfile](https://github.com/edoburu/docker-pgbouncer/blob/v1.14.x/Dockerfile)) 
+- `1.12.0` ([Dockerfile](https://github.com/edoburu/docker-pgbouncer/blob/v1.12.x/Dockerfile)) 
+- `1.11.0` ([Dockerfile](https://github.com/edoburu/docker-pgbouncer/blob/v1.11.x/Dockerfile)) 
 - `1.9.0` ([Dockerfile](https://github.com/edoburu/docker-pgbouncer/blob/v1.9.x/Dockerfile))
 - `1.8.1` ([Dockerfile](https://github.com/edoburu/docker-pgbouncer/blob/v1.8.x/Dockerfile))
 

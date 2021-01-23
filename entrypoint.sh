@@ -39,7 +39,8 @@ fi
 
 # Write the password with MD5 encryption, to avoid printing it during startup.
 # Notice that `docker inspect` will show unencrypted env variables.
-if [ -n "$DB_USER" -a -n "$DB_PASSWORD" ] && ! grep -q "^\"$DB_USER\"" ${PG_CONFIG_DIR}/userlist.txt; then
+_AUTH_FILE="${AUTH_FILE:-$PG_CONFIG_DIR/userlist.txt}"
+if [ -n "$DB_USER" -a -n "$DB_PASSWORD" -a -e "${_AUTH_FILE}" ] && ! grep -q "^\"$DB_USER\"" "${_AUTH_FILE}"; then
   if [ "$AUTH_TYPE" != "plain" ]; then
      pass="md5$(echo -n "$DB_PASSWORD$DB_USER" | md5sum | cut -f 1 -d ' ')"
   else

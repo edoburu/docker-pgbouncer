@@ -1,5 +1,5 @@
 IMAGE_NAME=edoburu/pgbouncer
-IMAGE_VERSION=1.14.0
+IMAGE_VERSION=1.15.0
 
 docker:
 	docker build -t $(IMAGE_NAME):$(IMAGE_VERSION) .

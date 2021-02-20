@@ -57,6 +57,56 @@ if [ -n "$DB_USER" -a -n "$DB_PASSWORD" -a -e "${_AUTH_FILE}" ] && ! grep -q "^\
   echo "Wrote authentication credentials to ${PG_CONFIG_DIR}/userlist.txt"
 fi
 
+# Loop over ADMIN_USERS & ADMIN_PASSWORDS if provided
+_admin_user_count=$(echo "${ADMIN_USERS:-postgres}" | tr "," "\n" | wc -l)
+_admin_password_count=$(echo "${ADMIN_PASSWORDS}" | tr "," "\n" | wc -l)
+if [ -n "${ADMIN_PASSWORDS}" -a "${_admin_user_count}" -eq "${_admin_password_count}" ]; then
+  _admin_user_loop=1
+  for _admin_user in $(echo "${ADMIN_USERS:-postgres}" | tr "," "\n"); do
+    _admin_password=$(echo ${ADMIN_PASSWORDS} | cut -d"," -f${_admin_user_loop})
+    if [ -n "${_admin_user}" -a -n "${_admin_password}" -a -e "${_AUTH_FILE}" ] && ! grep -q "^\"${_admin_user}\"" "${_AUTH_FILE}"; then
+      if [ "$AUTH_TYPE" != "plain" ]; then
+        _pass="md5$(echo -n "${_admin_password}${_admin_user}" | md5sum | cut -f 1 -d ' ')"
+      else
+        _pass="${_admin_pass}"
+      fi
+      echo "\"${_admin_user}\" \"${_pass}\"" >> ${PG_CONFIG_DIR}/userlist.txt
+      echo "Wrote ${_admin_user} (admin) authentication credentials to ${PG_CONFIG_DIR}/userlist.txt"
+    fi
+    _admin_user_loop=$(echo "${_admin_user_loop}+1" | bc)
+  done
+fi
+
+# Loop over STATS_USERS & STATS if provided
+_stats_user_count=$(echo "${STATS_USERS}" | tr "," "\n" | wc -l)
+_stats_password_count=$(echo "${STATS_PASSWORDS}" | tr "," "\n" | wc -l)
+if [ -n "${STATS_USERS}" -a -n "${STATS_PASSWORDS}" -a "${_stats_user_count}" -eq "${_stats_password_count}" ]; then
+  _stats_user_loop=1
+  for _stats_user in $(echo "${STATS_USERS}" | tr "," "\n"); do
+    _stats_password=$(echo ${STATS_PASSWORDS} | cut -d"," -f${_stats_user_loop})
+    if [ -n "${_stats_user}" -a -n "${_stats_password}" -a -e "${_AUTH_FILE}" ] && ! grep -q "^\"${_stats_user}\"" "${_AUTH_FILE}"; then
+      if [ "$AUTH_TYPE" != "plain" ]; then
+        _pass="md5$(echo -n "${_stats_password}${_stats_user}" | md5sum | cut -f 1 -d ' ')"
+      else
+        _pass="${_stats_pass}"
+      fi
+      echo "\"${_stats_user}\" \"${_pass}\"" >> ${PG_CONFIG_DIR}/userlist.txt
+      echo "Wrote ${_stats_user} (stats) authentication credentials to ${PG_CONFIG_DIR}/userlist.txt"
+    fi
+    _stats_user_loop=$(echo "${_stats_user_loop}+1" | bc)
+  done
+fi
+
+if [ "${ADMIN_USERS:-postgres}" == "postgres" -a -n "${ADMIN_PASSWORD}" -a -e "${_AUTH_FILE}" ] && ! grep -q "^\"${ADMIN_USERS:-postgres}\"" "${_AUTH_FILE}"; then
+  if [ "$AUTH_TYPE" != "plain" ]; then
+     pass="md5$(echo -n "${ADMIN_PASS}${ADMIN_USERS:-postgres}" | md5sum | cut -f 1 -d ' ')"
+  else
+     pass="${ADMIN_PASSWORD}"
+  fi
+  echo "\"$DB_USER\" \"$pass\"" >> ${PG_CONFIG_DIR}/userlist.txt
+  echo "Wrote authentication credentials to ${PG_CONFIG_DIR}/userlist.txt"
+fi
+
 if [ ! -f ${PG_CONFIG_DIR}/pgbouncer.ini ]; then
   echo "Create pgbouncer config in ${PG_CONFIG_DIR}"
 

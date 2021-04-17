@@ -5,9 +5,9 @@ ARG VERSION=1.15.0
 # hadolint ignore=DL3003,DL3018
 RUN \
   # security
-  apk add --no-cache --upgrade busybox && \
+  apk add -U --no-cache --upgrade busybox && \
   # Download
-  apk add --no-cache --update add autoconf autoconf-doc automake udns udns-dev curl gcc libc-dev libevent libevent-dev libtool make openssl-dev pkgconfig postgresql-client && \
+  apk add -U --no-cache autoconf autoconf-doc automake udns udns-dev curl gcc libc-dev libevent libevent-dev libtool make openssl-dev pkgconfig postgresql-client && \
   curl -o  /tmp/pgbouncer-$VERSION.tar.gz -L https://pgbouncer.github.io/downloads/files/$VERSION/pgbouncer-$VERSION.tar.gz && \
   cd /tmp && \
   # Unpack, compile

@@ -2,6 +2,7 @@ FROM alpine:3.13
 ARG VERSION=1.15.0
 
 # Inspiration from https://github.com/gmr/alpine-pgbouncer/blob/master/Dockerfile
+# hadolint ignore=DL3003,DL3018
 RUN \
   # Download
   apk --update add autoconf autoconf-doc automake udns udns-dev curl gcc libc-dev libevent libevent-dev libtool make openssl-dev pkgconfig postgresql-client && \

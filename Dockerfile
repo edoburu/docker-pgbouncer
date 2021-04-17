@@ -26,7 +26,8 @@ RUN \
   cd /tmp && \
   rm -rf /tmp/pgbouncer*  && \
   apk del --purge autoconf autoconf-doc automake udns-dev curl gcc libc-dev libevent-dev libtool make libressl-dev pkgconfig
-ADD entrypoint.sh /entrypoint.sh
+
+COPY entrypoint.sh /entrypoint.sh
 USER postgres
 EXPOSE 5432
 ENTRYPOINT ["/entrypoint.sh"]

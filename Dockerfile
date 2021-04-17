@@ -3,8 +3,10 @@ ARG VERSION=1.15.0
 
 # Inspiration from https://github.com/gmr/alpine-pgbouncer/blob/master/Dockerfile
 RUN \
+  # security
+  apk add --no-cache --upgrade busybox && \
   # Download
-  apk --update add autoconf autoconf-doc automake udns udns-dev curl gcc libc-dev libevent libevent-dev libtool make openssl-dev pkgconfig postgresql-client && \
+  apk add --no-cache --update add autoconf autoconf-doc automake udns udns-dev curl gcc libc-dev libevent libevent-dev libtool make openssl-dev pkgconfig postgresql-client && \
   curl -o  /tmp/pgbouncer-$VERSION.tar.gz -L https://pgbouncer.github.io/downloads/files/$VERSION/pgbouncer-$VERSION.tar.gz && \
   cd /tmp && \
   # Unpack, compile

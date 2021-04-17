@@ -2,7 +2,7 @@ FROM alpine:3.13
 ARG VERSION=1.15.0
 
 # Inspiration from https://github.com/gmr/alpine-pgbouncer/blob/master/Dockerfile
-# hadolint --ignore=DL3003
+# hadolint ignore=DL3003,DL3018
 RUN \
   # security
   apk add --no-cache --upgrade busybox && \

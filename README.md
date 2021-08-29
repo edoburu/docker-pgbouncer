@@ -151,6 +151,12 @@ examples/generate-userlist >> userlist.txt
 You can also connect with a single user to PgBouncer, and from there retrieve the actual database password
 by setting ``AUTH_USER``. See the example from: <https://www.cybertec-postgresql.com/en/pgbouncer-authentication-made-easy/>
 
+For connecting to multiple databases and controlling the user list directly, the DB_DATABASES and AUTH_USERLIST env variables may be used.
+
+```
+docker run -e DB_DATABASES='flask = host = 192.168.1.5 port=5432 user=web_user password=xxxx dbname=flask,data_web = host = 192.168.1.10 port=5432 user=web_user password=xxxxx dbname=data_web' -e LISTEN_PORT=5439 -p 5439:5439 -e AUTH_USERLIST="\"username1\" \"password\",\"username2\" \"password2\"" pgbouncer
+```
+
 Connecting to the admin console
 -------------------------------
 

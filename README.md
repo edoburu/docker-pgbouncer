@@ -1,6 +1,12 @@
 PgBouncer Docker image
 ======================
 
+Why fork?
+---------
+The current repo has fallen behind in support for features that we are looking for - this gives us more control over adoption.
+
+Overview
+--------
 This is a minimal PgBouncer image, based on Alpine Linux.
 
 Features:

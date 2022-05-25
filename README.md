@@ -154,8 +154,8 @@ by setting ``AUTH_USER``. See the example from: <https://www.cybertec-postgresql
 Connecting to the admin console
 -------------------------------
 
-When an *admin user* is defined, and it has a password in the `userlist.txt`, it can connect to the special `pgbouncer` database:
-
+When an *admin user* or *stats user* is defined, and it has a password in the `userlist.txt`, it can connect to the special `pgbouncer` database:
+This can be passed in by setting ``STATS_USER`` and ``STATS_PASSWORD``
 ```
 psql postgres://postgres@hostname-of-container/pgbouncer  # outside container
 psql postgres://127.0.0.1/pgbouncer                       # inside container

@@ -57,6 +57,20 @@ if [ -n "$DB_USER" -a -n "$DB_PASSWORD" -a -e "${_AUTH_FILE}" ] && ! grep -q "^\
   echo "Wrote authentication credentials to ${PG_CONFIG_DIR}/userlist.txt"
 fi
 
+STATS_USERS_ARRAY=$DB_USER
+if [ -n "$STATS_USER" -a -n "$STATS_USER_PASSWORD" -a -e "${_AUTH_FILE}" ] && ! grep -q "^\"$STATS_USER\"" "${_AUTH_FILE}"; then
+  STATS_USERS_ARRAY=$DB_USER,$STATS_USER
+  echo "Found DB_USER and ${STATS_USER} as STATS_USERS"
+  if [ "$AUTH_TYPE" != "plain" ]; then
+     pass="md5$(echo -n "$STATS_USER_PASSWORD$STATS_USER" | md5sum | cut -f 1 -d ' ')"
+  else
+     pass="$STATS_USER_PASSWORD"
+  fi
+  echo "\"$STATS_USER\" \"$pass\"" >> ${PG_CONFIG_DIR}/userlist.txt
+  echo "Wrote authentication credentials to ${PG_CONFIG_DIR}/userlist.txt"
+fi
+
+
 if [ ! -f ${PG_CONFIG_DIR}/pgbouncer.ini ]; then
   echo "Create pgbouncer config in ${PG_CONFIG_DIR}"
 
@@ -101,7 +115,7 @@ ${LOG_STATS:+log_stats = ${LOG_STATS}\n}\
 ${STATS_PERIOD:+stats_period = ${STATS_PERIOD}\n}\
 ${VERBOSE:+verbose = ${VERBOSE}\n}\
 admin_users = ${ADMIN_USERS:-postgres}
-${STATS_USERS:+stats_users = ${STATS_USERS}\n}\
+${STATS_USERS:+stats_users = ${${DB_USER},${STATS_USERS}}\n}\
 
 # Connection sanity checks, timeouts
 ${SERVER_RESET_QUERY:+server_reset_query = ${SERVER_RESET_QUERY}\n}\

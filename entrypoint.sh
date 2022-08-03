@@ -47,18 +47,28 @@ if [ ! -e "${_AUTH_FILE}" ]; then
   touch "${_AUTH_FILE}"
 fi
 
-if [ -n "$DB_USER" -a -n "$DB_PASSWORD" -a -e "${_AUTH_FILE}" ] && ! grep -q "^\"$DB_USER\"" "${_AUTH_FILE}"; then
-  if [ "$AUTH_TYPE" != "plain" ]; then
+if [ ! -n "${AUTH_USERLIST}" ] ; then
+  if [ -n "$DB_USER" -a -n "$DB_PASSWORD" -a -e "${_AUTH_FILE}" ] && ! grep -q "^\"$DB_USER\"" "${_AUTH_FILE}"; then
+    if [ "$AUTH_TYPE" != "plain" ]; then
      pass="md5$(echo -n "$DB_PASSWORD$DB_USER" | md5sum | cut -f 1 -d ' ')"
-  else
+    else
      pass="$DB_PASSWORD"
+    fi
+    echo "\"$DB_USER\" \"$pass\"" >> ${PG_CONFIG_DIR}/userlist.txt
+    echo "Wrote authentication credentials to ${PG_CONFIG_DIR}/userlist.txt"
   fi
-  echo "\"$DB_USER\" \"$pass\"" >> ${PG_CONFIG_DIR}/userlist.txt
-  echo "Wrote authentication credentials to ${PG_CONFIG_DIR}/userlist.txt"
+else
+  echo "${AUTH_USERLIST}" | tr , '\n' >> ${PG_CONFIG_DIR}/userlist.txt
 fi
 
 if [ ! -f ${PG_CONFIG_DIR}/pgbouncer.ini ]; then
   echo "Create pgbouncer config in ${PG_CONFIG_DIR}"
+
+if [ -n "${DB_DATABASES}" ] ; then
+  DB_DATABASES=`echo "${DB_DATABASES}" | tr , '\n'`
+else
+  DB_DATABASES="${DB_NAME:-*} = host=${DB_HOST:?"Setup pgbouncer config error! You must set DB_HOST or DB_DATABASES env"} port=${DB_PORT:-5432} user=${DB_USER:-postgres}"
+fi
 
 # Config file is in “ini” format. Section names are between “[” and “]”.
 # Lines starting with “;” or “#” are taken as comments and ignored.
@@ -66,8 +76,7 @@ if [ ! -f ${PG_CONFIG_DIR}/pgbouncer.ini ]; then
   printf "\
 ################## Auto generated ##################
 [databases]
-${DB_NAME:-*} = host=${DB_HOST:?"Setup pgbouncer config error! You must set DB_HOST env"} \
-port=${DB_PORT:-5432} user=${DB_USER:-postgres}
+${DB_DATABASES}
 ${CLIENT_ENCODING:+client_encoding = ${CLIENT_ENCODING}\n}\
 
 [pgbouncer]

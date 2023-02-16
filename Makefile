@@ -4,5 +4,26 @@ IMAGE_VERSION=1.18.0
 docker:
 	docker build --pull -t $(IMAGE_NAME):$(IMAGE_VERSION) .
 
+docker-x86:
+	docker buildx build \
+		--platform linux/amd64 \
+		-t $(IMAGE_NAME):$(IMAGE_VERSION) \
+		-f ./Dockerfile \
+		--load \
+		.
+
+docker-arm:
+	docker buildx build \
+		--platform linux/arm64 \
+		-t $(IMAGE_NAME):$(IMAGE_VERSION) \
+		-f ./Dockerfile \
+		--load \
+		.
+
 push:
-	docker push $(IMAGE_NAME):$(IMAGE_VERSION)
+	docker buildx build \
+		--platform linux/arm64,linux/amd64 \
+		-t $(IMAGE_NAME):$(IMAGE_VERSION) \
+		-f ./Dockerfile \
+		--push \
+		.

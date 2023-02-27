@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # Based on https://raw.githubusercontent.com/brainsam/pgbouncer/master/entrypoint.sh
 
 set -e

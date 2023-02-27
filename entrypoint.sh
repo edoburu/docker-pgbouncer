@@ -48,7 +48,7 @@ if [ ! -e "${_AUTH_FILE}" ]; then
 fi
 
 if [ -n "$DB_USER" -a -n "$DB_PASSWORD" -a -e "${_AUTH_FILE}" ] && ! grep -q "^\"$DB_USER\"" "${_AUTH_FILE}"; then
-  if [ "$AUTH_TYPE" == "plain" || "$AUTH_TYPE" == "scram-sha-256" ]; then
+  if [ "$AUTH_TYPE" == "plain" ] || [ "$AUTH_TYPE" == "scram-sha-256" ]; then
      pass="$DB_PASSWORD"
   else
      pass="md5$(echo -n "$DB_PASSWORD$DB_USER" | md5sum | cut -f 1 -d ' ')"

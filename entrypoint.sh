@@ -41,10 +41,10 @@ if [ -n "$DATABASE_URL" ]; then
   hostport=`echo $url | sed -e s,$userpass_esc@,,g | cut -d/ -f1`
   port=`echo $hostport | grep : | cut -d: -f2`
   if [ -n "$port" ]; then
-    DB_HOST=`echo $hostport | grep : | cut -d: -f1`
-    DB_PORT=$port
+      DB_HOST=`echo $hostport | grep : | cut -d: -f1`
+      DB_PORT=$port
   else
-    DB_HOST=$hostport
+      DB_HOST=$hostport
   fi
 
   DB_NAME="$(echo $url | grep / | cut -d/ -f2-)"

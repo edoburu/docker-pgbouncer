@@ -11,12 +11,9 @@ PG_CONFIG_DIR=/etc/pgbouncer
 if [ -n "$DATABASE_URL" ]; then
   # Thanks to https://stackoverflow.com/a/17287984/146289
 
-  # Check that begins with valid postgres:// prefix and has at max one '@' char
+  # Check that connection string has at max one '@' char
   charcount=$(echo $DATABASE_URL | grep -o "@" | wc -l)
-  if [[ ! "$DATABASE_URL" =~ ^postgres:// ]]; then
-    echo 1>&2 "$0: invalid postgres connection string"
-    exit 2
-  elif [ $charcount -gt 1 ]; then
+  if [ $charcount -gt 1 ]; then
     echo 1>&2 "$0: invalid multiple '@' chars in connection string"
     exit 2
   fi

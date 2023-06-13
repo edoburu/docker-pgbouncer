@@ -93,6 +93,7 @@ ${SERVER_ROUND_ROBIN:+server_round_robin = ${SERVER_ROUND_ROBIN}\n}\
 ignore_startup_parameters = ${IGNORE_STARTUP_PARAMETERS:-extra_float_digits}
 ${DISABLE_PQEXEC:+disable_pqexec = ${DISABLE_PQEXEC}\n}\
 ${APPLICATION_NAME_ADD_HOST:+application_name_add_host = ${APPLICATION_NAME_ADD_HOST}\n}\
+${TIMEZONE:+timezone = ${TIMEZONE}\n}\
 
 # Log settings
 ${LOG_CONNECTIONS:+log_connections = ${LOG_CONNECTIONS}\n}\

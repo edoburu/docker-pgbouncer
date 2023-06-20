@@ -16,7 +16,7 @@ if [ -n "$DATABASE_URL" ]; then
   url="$(echo $DATABASE_URL | sed -e s,$proto,,g)"
 
   # extract the user and password (if any)
-  userpass="$(echo $url | grep @ | cut -d@ -f1)"
+  userpass=$(echo $url | grep @ | sed -r 's/^(.*)@([^@]*)$/\1/')
   DB_PASSWORD="$(echo $userpass | grep : | cut -d: -f2)"
   if [ -n "$DB_PASSWORD" ]; then
     DB_USER=$(echo $userpass | grep : | cut -d: -f1)
@@ -39,9 +39,21 @@ fi
 
 # Write the password with MD5 encryption, to avoid printing it during startup.
 # Notice that `docker inspect` will show unencrypted env variables.
-if [ -n "$DB_USER" -a -n "$DB_PASSWORD" ] && ! grep -q "^\"$DB_USER\"" ${PG_CONFIG_DIR}/userlist.txt; then
-  encrypted_pass="md5$(echo -n "$DB_PASSWORD$DB_USER" | md5sum | cut -f 1 -d ' ')"
-  echo "\"$DB_USER\" \"$encrypted_pass\"" >> ${PG_CONFIG_DIR}/userlist.txt
+_AUTH_FILE="${AUTH_FILE:-$PG_CONFIG_DIR/userlist.txt}"
+
+# Workaround userlist.txt missing issue
+# https://github.com/edoburu/docker-pgbouncer/issues/33
+if [ ! -e "${_AUTH_FILE}" ]; then
+  touch "${_AUTH_FILE}"
+fi
+
+if [ -n "$DB_USER" -a -n "$DB_PASSWORD" -a -e "${_AUTH_FILE}" ] && ! grep -q "^\"$DB_USER\"" "${_AUTH_FILE}"; then
+  if [ "$AUTH_TYPE" == "plain" ] || [ "$AUTH_TYPE" == "scram-sha-256" ]; then
+     pass="$DB_PASSWORD"
+  else
+     pass="md5$(echo -n "$DB_PASSWORD$DB_USER" | md5sum | cut -f 1 -d ' ')"
+  fi
+  echo "\"$DB_USER\" \"$pass\"" >> ${PG_CONFIG_DIR}/userlist.txt
   echo "Wrote authentication credentials to ${PG_CONFIG_DIR}/userlist.txt"
 fi
 
@@ -61,14 +73,16 @@ ${CLIENT_ENCODING:+client_encoding = ${CLIENT_ENCODING}\n}\
 [pgbouncer]
 listen_addr = ${LISTEN_ADDR:-0.0.0.0}
 listen_port = ${LISTEN_PORT:-5432}
-unix_socket_dir =
+unix_socket_dir = ${UNIX_SOCKET_DIR}
 user = postgres
 auth_file = ${AUTH_FILE:-$PG_CONFIG_DIR/userlist.txt}
 ${AUTH_HBA_FILE:+auth_hba_file = ${AUTH_HBA_FILE}\n}\
 auth_type = ${AUTH_TYPE:-md5}
+${AUTH_USER:+auth_user = ${AUTH_USER}\n}\
 ${AUTH_QUERY:+auth_query = ${AUTH_QUERY}\n}\
 ${POOL_MODE:+pool_mode = ${POOL_MODE}\n}\
 ${MAX_CLIENT_CONN:+max_client_conn = ${MAX_CLIENT_CONN}\n}\
+${POOL_SIZE:+pool_size = ${POOL_SIZE}\n}\
 ${DEFAULT_POOL_SIZE:+default_pool_size = ${DEFAULT_POOL_SIZE}\n}\
 ${MIN_POOL_SIZE:+min_pool_size = ${MIN_POOL_SIZE}\n}\
 ${RESERVE_POOL_SIZE:+reserve_pool_size = ${RESERVE_POOL_SIZE}\n}\
@@ -79,11 +93,13 @@ ${SERVER_ROUND_ROBIN:+server_round_robin = ${SERVER_ROUND_ROBIN}\n}\
 ignore_startup_parameters = ${IGNORE_STARTUP_PARAMETERS:-extra_float_digits}
 ${DISABLE_PQEXEC:+disable_pqexec = ${DISABLE_PQEXEC}\n}\
 ${APPLICATION_NAME_ADD_HOST:+application_name_add_host = ${APPLICATION_NAME_ADD_HOST}\n}\
+${TIMEZONE:+timezone = ${TIMEZONE}\n}\
 
 # Log settings
 ${LOG_CONNECTIONS:+log_connections = ${LOG_CONNECTIONS}\n}\
 ${LOG_DISCONNECTIONS:+log_disconnections = ${LOG_DISCONNECTIONS}\n}\
 ${LOG_POOLER_ERRORS:+log_pooler_errors = ${LOG_POOLER_ERRORS}\n}\
+${LOG_STATS:+log_stats = ${LOG_STATS}\n}\
 ${STATS_PERIOD:+stats_period = ${STATS_PERIOD}\n}\
 ${VERBOSE:+verbose = ${VERBOSE}\n}\
 admin_users = ${ADMIN_USERS:-postgres}
@@ -134,6 +150,7 @@ ${TCP_KEEPALIVE:+tcp_keepalive = ${TCP_KEEPALIVE}\n}\
 ${TCP_KEEPCNT:+tcp_keepcnt = ${TCP_KEEPCNT}\n}\
 ${TCP_KEEPIDLE:+tcp_keepidle = ${TCP_KEEPIDLE}\n}\
 ${TCP_KEEPINTVL:+tcp_keepintvl = ${TCP_KEEPINTVL}\n}\
+${TCP_USER_TIMEOUT:+tcp_user_timeout = ${TCP_USER_TIMEOUT}\n}\
 ################## end file ##################
 " > ${PG_CONFIG_DIR}/pgbouncer.ini
 cat ${PG_CONFIG_DIR}/pgbouncer.ini

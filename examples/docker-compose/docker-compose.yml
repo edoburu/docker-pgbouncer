@@ -1,0 +1,28 @@
+version: '3'
+services:
+
+  db:
+    image: postgres:12
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=hbZkzny5xrvVH
+      - POSTGRES_USER=dbuser
+      - POSTGRES_DB=test
+
+  pgbouncer:
+    image: edoburu/pgbouncer
+    environment:
+       - DB_USER=dbuser
+       - DB_PASSWORD=hbZkzny5xrvVH
+       - DB_HOST=db
+       - DB_NAME=test
+       - POOL_MODE=transaction
+       - ADMIN_USERS=postgres,dbuser
+    ports:
+      - "5432:5432"
+    depends_on:
+      - db
+
+volumes:
+  pg_data:

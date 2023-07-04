@@ -1,9 +1,8 @@
 IMAGE_NAME=edoburu/pgbouncer
-IMAGE_VERSION=v1.19.1
-PATCH_NUMBER=p0
+IMAGE_VERSION=latest
 
 docker:
-	docker build --pull -t $(IMAGE_NAME):$(IMAGE_VERSION)-$(PATCH_NUMBER) .
+	docker build --pull -t $(IMAGE_NAME):$(IMAGE_VERSION) .
 
 push:
-	docker push $(IMAGE_NAME):$(IMAGE_VERSION)-$(PATCH_NUMBER)
+	docker push $(IMAGE_NAME):$(IMAGE_VERSION)

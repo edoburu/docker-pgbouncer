@@ -1,10 +1,11 @@
 IMAGE_NAME=edoburu/pgbouncer
-IMAGE_VERSION=latest
+IMAGE_VERSION=1.20.1
+PATCH_NUMBER=p0
 
 docker-x86:
 	docker buildx build \
 		--platform linux/amd64 \
-		-t $(IMAGE_NAME):$(IMAGE_VERSION) \
+		-t $(IMAGE_NAME):$(IMAGE_VERSION)-$(PATCH_NUMBER) \
 		-f ./Dockerfile \
 		--load \
 		.
@@ -14,7 +15,7 @@ docker-x86:
 docker-arm:
 	docker buildx build \
 		--platform linux/arm64 \
-		-t $(IMAGE_NAME):$(IMAGE_VERSION) \
+		-t $(IMAGE_NAME):$(IMAGE_VERSION)-$(PATCH_NUMBER) \
 		-f ./Dockerfile \
 		--load \
 		.
@@ -22,7 +23,7 @@ docker-arm:
 push:
 	docker buildx build \
 		--platform linux/arm64,linux/amd64 \
-		-t $(IMAGE_NAME):$(IMAGE_VERSION) \
+		-t $(IMAGE_NAME):$(IMAGE_VERSION)-$(PATCH_NUMBER) \
 		-f ./Dockerfile \
 		--push \
 		.

@@ -5,20 +5,20 @@ services:
     image: postgres:12
     volumes:
       - pg_data:/var/lib/postgresql/data
+      - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
     environment:
+      - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=hbZkzny5xrvVH
-      - POSTGRES_USER=dbuser
-      - POSTGRES_DB=test
 
   pgbouncer:
     image: edoburu/pgbouncer
     environment:
-       - DB_USER=dbuser
-       - DB_PASSWORD=hbZkzny5xrvVH
-       - DB_HOST=db
-       - DB_NAME=test
-       - POOL_MODE=transaction
-       - ADMIN_USERS=postgres,dbuser
+      - DB_USER=postgres
+      - DB_PASSWORD=hbZkzny5xrvVH
+      - DB_HOST=db
+      # - DB_NAME=test
+      - POOL_MODE=transaction
+      - ADMIN_USERS=postgres,dbuser
     ports:
       - "5432:5432"
     depends_on:

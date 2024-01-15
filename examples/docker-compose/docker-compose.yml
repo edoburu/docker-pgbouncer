@@ -17,6 +17,8 @@ services:
       - DB_PASSWORD=hbZkzny5xrvVH
       - DB_HOST=db
       # - DB_NAME=test
+      # for postgres:14
+      # - AUTH_TYPE=scram-sha-256 
       - POOL_MODE=transaction
       - ADMIN_USERS=postgres,dbuser
     ports:

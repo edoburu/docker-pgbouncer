@@ -19,23 +19,6 @@ PostgreSQL connections take up a lot of memory ([about 10MB per connection](http
 
 By placing PgBouncer in between the web application and the actual PostgreSQL database, the memory and start-up costs are reduced. The web application can keep persistent connections to PgBouncer, while PgBouncer only keeps a few connections to the actual PostgreSQL server. It can reuse the same connection for multiple clients.
 
-Available tags
---------------
-
-Base images:
-
-* `latest` ([Dockerfile](https://github.com/edoburu/docker-pgbouncer/blob/master/Dockerfile)) - Default and latest version.
-* `1.21.0` ([Dockerfile](https://github.com/edoburu/docker-pgbouncer/blob/v1.21.x/Dockerfile)) - Latest version.
-* `1.20.1` ([Dockerfile](https://github.com/edoburu/docker-pgbouncer/blob/v1.20.x/Dockerfile)) - Latest version.
-* `1.19.1` ([Dockerfile](https://github.com/edoburu/docker-pgbouncer/blob/v1.19.x/Dockerfile)) - Latest version.
-* `1.18.0` ([Dockerfile](https://github.com/edoburu/docker-pgbouncer/blob/v1.18.x/Dockerfile)) - Latest version.
-* `1.17.0` ([Dockerfile](https://github.com/edoburu/docker-pgbouncer/blob/v1.17.x/Dockerfile)) - Latest version.
-* `1.15.0` ([Dockerfile](https://github.com/edoburu/docker-pgbouncer/blob/v1.15.x/Dockerfile)) - Latest version.
-* `1.14.0` ([Dockerfile](https://github.com/edoburu/docker-pgbouncer/blob/v1.14.x/Dockerfile)) - Latest version.
-* `1.12.0` ([Dockerfile](https://github.com/edoburu/docker-pgbouncer/blob/v1.12.x/Dockerfile)) - Latest version.
-
-Images are automatically rebuild on Alpine Linux updates.
-
 Usage
 -----
 

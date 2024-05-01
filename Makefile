@@ -1,5 +1,5 @@
 IMAGE_NAME=edoburu/pgbouncer
-IMAGE_VERSION=1.22.0-p0
+IMAGE_VERSION=1.22.1-p0
 
 docker-x86:
 	docker buildx build \

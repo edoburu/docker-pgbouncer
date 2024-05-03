@@ -1,8 +1,6 @@
-version: '3'
 services:
-
   db:
-    image: postgres:12
+    image: postgres:16-alpine
     volumes:
       - pg_data:/var/lib/postgresql/data
       - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
@@ -17,8 +15,7 @@ services:
       - DB_PASSWORD=hbZkzny5xrvVH
       - DB_HOST=db
       # - DB_NAME=test
-      # for postgres:14 and above
-      # - AUTH_TYPE=scram-sha-256 
+      - AUTH_TYPE=scram-sha-256 # remove/comment this line if using postgres:13 and lower
       - POOL_MODE=transaction
       - ADMIN_USERS=postgres,dbuser
     ports:

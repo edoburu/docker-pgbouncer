@@ -1,0 +1,18 @@
+version: 2
+updates:
+- package-ecosystem: docker
+  directory: "/"
+  schedule:
+    interval: weekly
+- package-ecosystem: docker
+  directory: "/examples/docker-compose"
+  schedule:
+    interval: weekly
+- package-ecosystem: docker
+  directory: "/examples/kubernetes/multiuser"
+  schedule:
+    interval: weekly
+- package-ecosystem: docker
+  directory: "/examples/kubernetes/singleuser"
+  schedule:
+    interval: weekly

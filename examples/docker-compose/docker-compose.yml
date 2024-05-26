@@ -1,6 +1,7 @@
 services:
   db:
     image: postgres:16-alpine
+    init: true
     volumes:
       - pg_data:/var/lib/postgresql/data
       - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d

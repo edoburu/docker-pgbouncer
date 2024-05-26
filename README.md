@@ -11,6 +11,7 @@ Features:
 * Includes PostgreSQL client tools such as ``psql``, ``pg_isready``
 * MD5 authentication by default.
 * `/etc/pgbouncer/pgbouncer.ini` and `/etc/pbbouncer/userlist.txt` are auto-created if they don't exist.
+* Uses [tini](https://github.com/krallin/tini) as entrypoint to respect default signal handlers.
 
 Why use PgBouncer
 -----------------

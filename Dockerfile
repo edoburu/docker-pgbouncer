@@ -1,4 +1,4 @@
-FROM alpine:3.18
+FROM alpine:3.20
 ARG VERSION=1.23.0
 
 # Inspiration from https://github.com/gmr/alpine-pgbouncer/blob/master/Dockerfile
@@ -8,7 +8,7 @@ RUN \
   apk add -U --no-cache --upgrade busybox && \
   # Download
   apk add -U --no-cache autoconf autoconf-doc automake udns udns-dev curl gcc libc-dev libevent libevent-dev libtool make openssl-dev pkgconfig postgresql-client && \
-  curl -o  /tmp/pgbouncer-$VERSION.tar.gz -L https://pgbouncer.github.io/downloads/files/$VERSION/pgbouncer-$VERSION.tar.gz && \
+  curl -sS -o /tmp/pgbouncer-$VERSION.tar.gz -L https://pgbouncer.github.io/downloads/files/$VERSION/pgbouncer-$VERSION.tar.gz && \
   cd /tmp && \
   # Unpack, compile
   tar xvfz /tmp/pgbouncer-$VERSION.tar.gz && \
@@ -25,7 +25,7 @@ RUN \
   chown -R postgres /var/log/pgbouncer /var/run/pgbouncer /etc/pgbouncer && \
   # Cleanup
   cd /tmp && \
-  rm -rf /tmp/pgbouncer*  && \
+  rm -rf /tmp/pgbouncer* && \
   apk del --purge autoconf autoconf-doc automake udns-dev curl gcc libc-dev libevent-dev libtool make openssl-dev pkgconfig
 
 COPY entrypoint.sh /entrypoint.sh

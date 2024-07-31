@@ -17,7 +17,6 @@ Using PgBouncer is possible in different situations:
 
 When PgBouncer runs inside the application Pod, it can be accessed via `localhost`. Otherwise, use the service DNS name (`servicename` or `servicename.namespace`) to connect to it.
 
-
 Connecting
 ----------
 
@@ -35,7 +34,7 @@ kubectl get services
 
 Make sure PostgreSQL at least accepts connections from the machine where PgBouncer runs! Update `listen_addresses` in `postgresql.conf` and accept incoming connections from your IP range (e.g. `10.0.0.0/8`) in `pg_hba.conf`:
 
-```
+```sh
 # TYPE  DATABASE        USER            ADDRESS                 METHOD
 host    all             all             10.0.0.0/8              md5
 ```

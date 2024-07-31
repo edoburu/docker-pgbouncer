@@ -1,5 +1,6 @@
 services:
   db:
+    container_name: db
     image: postgres:16-alpine
     volumes:
       - pg_data:/var/lib/postgresql/data
@@ -7,9 +8,19 @@ services:
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=hbZkzny5xrvVH
+    healthcheck:
+      test: ['CMD', 'pg_isready', '-U', 'postgres']
 
   pgbouncer:
-    image: edoburu/pgbouncer
+    container_name: pgbouncer
+    ### build from source
+    image: pgbouncer
+    build:
+      context: ../..
+      # args:
+      #   VERSION: 1.23.0
+    ### download from dockerhub
+    # image: edoburu/pgbouncer:latest
     environment:
       - DB_USER=postgres
       - DB_PASSWORD=hbZkzny5xrvVH
@@ -22,6 +33,8 @@ services:
       - "5432:5432"
     depends_on:
       - db
+    healthcheck:
+      test: ['CMD', 'pg_isready', '-h', 'localhost']
 
 volumes:
   pg_data:

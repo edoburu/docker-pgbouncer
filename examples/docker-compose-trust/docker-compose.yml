@@ -1,0 +1,33 @@
+services:
+  db:
+    container_name: db
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      - "POSTGRES_HOST_AUTH_METHOD=trust"
+      - "POSTGRES_DB=db"
+    shm_size: 256mb
+    healthcheck:
+      test: ['CMD', 'pg_isready', '-U', 'postgres']
+
+  pgbouncer:
+    container_name: pgbouncer
+    ### build from source
+    image: pgbouncer
+    build:
+      context: ../..
+      args:
+        VERSION: 1.22.1
+    ### download from dockerhub
+    # image: edoburu/pgbouncer:latest
+    restart: always
+    depends_on:
+      - db
+    environment:
+      - "DB_HOST=db"
+      - "AUTH_TYPE=trust"
+      - "MAX_CLIENT_CONN=200"
+      - "DEFAULT_POOL_SIZE=20"
+      - "POOL_MODE=transaction"
+    healthcheck:
+      test: ['CMD', 'pg_isready', '-h', 'localhost']

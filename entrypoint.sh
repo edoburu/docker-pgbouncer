@@ -28,10 +28,10 @@ if [ -n "$DATABASE_URL" ]; then
   hostport=`echo $url | sed -e s,$userpass@,,g | cut -d/ -f1`
   port=`echo $hostport | grep : | cut -d: -f2`
   if [ -n "$port" ]; then
-      DB_HOST=`echo $hostport | grep : | cut -d: -f1`
-      DB_PORT=$port
+    DB_HOST=`echo $hostport | grep : | cut -d: -f1`
+    DB_PORT=$port
   else
-      DB_HOST=$hostport
+    DB_HOST=$hostport
   fi
 
   DB_NAME="$(echo $url | grep / | cut -d/ -f2-)"
@@ -49,9 +49,9 @@ fi
 
 if [ -n "$DB_USER" -a -n "$DB_PASSWORD" -a -e "${_AUTH_FILE}" ] && ! grep -q "^\"$DB_USER\"" "${_AUTH_FILE}"; then
   if [ "$AUTH_TYPE" == "plain" ] || [ "$AUTH_TYPE" == "scram-sha-256" ]; then
-     pass="$DB_PASSWORD"
+    pass="$DB_PASSWORD"
   else
-     pass="md5$(echo -n "$DB_PASSWORD$DB_USER" | md5sum | cut -f 1 -d ' ')"
+    pass="md5$(echo -n "$DB_PASSWORD$DB_USER" | md5sum | cut -f 1 -d ' ')"
   fi
   echo "\"$DB_USER\" \"$pass\"" >> ${PG_CONFIG_DIR}/userlist.txt
   echo "Wrote authentication credentials to ${PG_CONFIG_DIR}/userlist.txt"

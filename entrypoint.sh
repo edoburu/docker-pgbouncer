@@ -58,11 +58,11 @@ if [ -n "$DB_USER" -a -n "$DB_PASSWORD" -a -e "${_AUTH_FILE}" ] && ! grep -q "^\
 fi
 
 if [ ! -f ${PG_CONFIG_DIR}/pgbouncer.ini ]; then
-  echo "Create pgbouncer config in ${PG_CONFIG_DIR}"
+  echo "Creating pgbouncer config in ${PG_CONFIG_DIR}"
 
-# Config file is in “ini” format. Section names are between “[” and “]”.
-# Lines starting with “;” or “#” are taken as comments and ignored.
-# The characters “;” and “#” are not recognized when they appear later in the line.
+# Config file is in "ini" format. Section names are between "[" and "]".
+# Lines starting with ";" or "#" are taken as comments and ignored.
+# The characters ";" and "#" are not recognized when they appear later in the line.
   printf "\
 ################## Auto generated ##################
 [databases]
@@ -80,6 +80,7 @@ ${AUTH_HBA_FILE:+auth_hba_file = ${AUTH_HBA_FILE}\n}\
 auth_type = ${AUTH_TYPE:-md5}
 ${AUTH_USER:+auth_user = ${AUTH_USER}\n}\
 ${AUTH_QUERY:+auth_query = ${AUTH_QUERY}\n}\
+${AUTH_DBNAME:+auth_dbname = ${AUTH_DBNAME}\n}\
 ${POOL_MODE:+pool_mode = ${POOL_MODE}\n}\
 ${MAX_CLIENT_CONN:+max_client_conn = ${MAX_CLIENT_CONN}\n}\
 ${POOL_SIZE:+pool_size = ${POOL_SIZE}\n}\

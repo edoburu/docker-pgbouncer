@@ -11,6 +11,13 @@ PG_CONFIG_DIR=/etc/pgbouncer
 if [ -n "$DATABASE_URL" ]; then
   # Thanks to https://stackoverflow.com/a/17287984/146289
 
+  # Check that connection string has at max one '@' char
+  charcount=$(echo $DATABASE_URL | grep -o "@" | wc -l)
+  if [ $charcount -gt 1 ]; then
+    echo 1>&2 "$0: invalid multiple '@' chars in connection string"
+    exit 2
+  fi
+
   # Allow to pass values like dj-database-url / django-environ accept
   proto="$(echo $DATABASE_URL | grep :// | sed -e's,^\(.*://\).*,\1,g')"
   url="$(echo $DATABASE_URL | sed -e s,$proto,,g)"
@@ -24,8 +31,11 @@ if [ -n "$DATABASE_URL" ]; then
     DB_USER=$userpass
   fi
 
+  # escape special chars '*' and '.' that might occur in password
+  userpass_esc=$(sed 's/[\*\.]/\\&/g' <<< $userpass)
+
   # extract the host -- updated
-  hostport=`echo $url | sed -e s,$userpass@,,g | cut -d/ -f1`
+  hostport=`echo $url | sed -e s,$userpass_esc@,,g | cut -d/ -f1`
   port=`echo $hostport | grep : | cut -d: -f2`
   if [ -n "$port" ]; then
     DB_HOST=`echo $hostport | grep : | cut -d: -f1`

@@ -2,6 +2,12 @@ name: Build and Push PgBouncer
 
 on:
   push:
+    branches: [master]
+    tags: ["v*"]
+  pull_request:
+    branches: [master]
+  schedule:
+    - cron: "0 2 * * *" # Runs at 02:00 UTC daily
   workflow_dispatch:
 
 jobs:
@@ -44,7 +50,10 @@ jobs:
             ghcr.io/${{ github.repository_owner }}/pgbouncer
           tags: |
             type=raw,value=${{ matrix.pgbouncer_version }}
+            type=raw,value=${{ matrix.pgbouncer_version }}-p${{ github.run_number }}
+            type=raw,value=nightly,enable=${{ github.event_name == 'schedule' }}
             type=semver,pattern={{version}}
+            type=semver,pattern={{version}}-p${{ github.run_number }}
             type=ref,event=branch
             type=ref,event=tag
 

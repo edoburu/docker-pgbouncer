@@ -51,7 +51,6 @@ jobs:
           tags: |
             type=raw,value=${{ matrix.pgbouncer_version }}
             type=raw,value=${{ matrix.pgbouncer_version }}-p${{ github.run_number }}
-            type=raw,value=nightly-${{ format('YYYYMMDD', github.event.created_at || github.run_started_at) }},enable=${{ github.event_name == 'schedule' }}
             type=raw,value=nightly,enable=${{ github.event_name == 'schedule' }}
             type=semver,pattern={{version}}
             type=semver,pattern={{version}}-p${{ github.run_number }}
@@ -59,7 +58,6 @@ jobs:
             type=ref,event=tag
             type=raw,value=${{ matrix.pgbouncer_version }}-${{ github.sha }}
             type=raw,value=${{ matrix.pgbouncer_version }}-${{ github.run_id }}
-            type=raw,value=${{ matrix.pgbouncer_version }}-${{ format('YYYYMMDD', github.run_started_at) }}
 
       - name: Build and push
         uses: docker/build-push-action@v4

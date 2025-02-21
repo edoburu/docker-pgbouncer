@@ -41,11 +41,21 @@ docker run --rm \
     edoburu/pgbouncer
 ```
 
-Connecting should work as expected:
+During startup we'll generate the necessary `userlist.txt` & `pgbouncer.ini` entries to match this information. Connecting should work as expected:
 
 ```sh
 psql 'postgresql://user:pass@localhost/dbname'
 ```
+
+> [!NOTE]
+> If you need quick multi-user setup you can use `DATABASE_URLS` (instead of `DATABASE_URL`) with a comma (`,`) separated list of URLs.
+> 
+> ```sh
+> docker run --rm \
+>     -e DATABASE_URLS="postgres://foo:123@postgres-host/foo,postgres://bar:456@postgres-host/bar" \
+>     -p 5432:5432 \
+>     edoburu/pgbouncer
+> ```
 
 Configuration
 -------------

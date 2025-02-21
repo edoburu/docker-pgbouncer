@@ -24,12 +24,12 @@ if [ -n "$DATABASE_URL" ]; then
   url="$(echo $DATABASE_URL | sed -e s,$proto,,g)"
 
   # extract the user and password (if any)
-  userpass=$(echo $url | grep @ | sed -r 's/^(.*)@([^@]*)$/\1/')
+  userpass="$(echo $url | grep @ | sed -r 's/^(.*)@([^@]*)$/\1/')"
   DB_PASSWORD="$(echo $userpass | grep : | cut -d: -f2)"
-  if [ -n "$DB_PASSWORD" ]; then
-    DB_USER=$(echo $userpass | grep : | cut -d: -f1)
+  if [ -n "${DB_PASSWORD}" ]; then
+    DB_USER="$(echo $userpass | grep : | cut -d: -f1)"
   else
-    DB_USER=$userpass
+    DB_USER="${userpass}"
   fi
 
   # extract the host -- updated
@@ -37,9 +37,9 @@ if [ -n "$DATABASE_URL" ]; then
   port=`echo $hostport | grep : | cut -d: -f2`
   if [ -n "$port" ]; then
     DB_HOST=`echo $hostport | grep : | cut -d: -f1`
-    DB_PORT=$port
+    DB_PORT="${port}"
   else
-    DB_HOST=$hostport
+    DB_HOST="${hostport}"
   fi
 
   DB_NAME="$(echo $url | grep / | cut -d/ -f2-)"
@@ -47,22 +47,22 @@ fi
 
 # Write the password with MD5 encryption, to avoid printing it during startup.
 # Notice that `docker inspect` will show unencrypted env variables.
-if [ -n "$DB_USER" -a -n "$DB_PASSWORD" -a -e "${_AUTH_FILE}" ] && ! grep -q "^\"$DB_USER\"" "${_AUTH_FILE}"; then
-  if [ "$AUTH_TYPE" == "plain" ] || [ "$AUTH_TYPE" == "scram-sha-256" ]; then
-    pass="$DB_PASSWORD"
+if [ -n "${DB_USER}" -a -n "${DB_PASSWORD}" -a -e "${_AUTH_FILE}" ] && ! grep -q "^\"${DB_USER}\"" "${_AUTH_FILE}"; then
+  if [ "${AUTH_TYPE}" == "plain" ] || [ "${AUTH_TYPE}" == "scram-sha-256" ]; then
+    pass="${DB_PASSWORD}"
   else
-    pass="md5$(echo -n "$DB_PASSWORD$DB_USER" | md5sum | cut -f 1 -d ' ')"
+    pass="md5$(echo -n "${DB_PASSWORD}${DB_USER}" | md5sum | cut -f 1 -d ' ')"
   fi
-  echo "\"$DB_USER\" \"$pass\"" >> "${_AUTH_FILE}"
-  echo "Wrote authentication credentials to ${_AUTH_FILE}"
+  echo "\"${DB_USER}\" \"${pass}\"" >> "${_AUTH_FILE}"
+  echo "Wrote authentication credentials for '${DB_USER}' to ${_AUTH_FILE}"
 fi
 
 if [ ! -f "${PG_CONFIG_FILE}" ]; then
   echo "Creating pgbouncer config in ${PG_CONFIG_DIR}"
 
-# Config file is in "ini" format. Section names are between "[" and "]".
-# Lines starting with ";" or "#" are taken as comments and ignored.
-# The characters ";" and "#" are not recognized when they appear later in the line.
+  # Config file is in "ini" format. Section names are between "[" and "]".
+  # Lines starting with ";" or "#" are taken as comments and ignored.
+  # The characters ";" and "#" are not recognized when they appear later in the line.
   printf "\
 ################## Auto generated ##################
 [databases]

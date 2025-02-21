@@ -76,7 +76,12 @@ ${CLIENT_ENCODING:+client_encoding = ${CLIENT_ENCODING}\n}\
 
 # Write the password with MD5 encryption, to avoid printing it during startup.
 # Notice that `docker inspect` will show unencrypted env variables.
-if [ -n "${DATABASE_URL}" ]; then
+if [ -n "${DATABASE_URLS}" ]; then
+  echo "${DATABASE_URLS}" | tr , '\n' | while read url; do
+    parse_url "$url"
+    generate_userlist_if_needed
+  done
+elif [ -n "${DATABASE_URL}" ]; then
   parse_url "${DATABASE_URL}"
   generate_userlist_if_needed
 else
@@ -94,7 +99,12 @@ if [ ! -f "${PG_CONFIG_FILE}" ]; then
 [databases]
 " > "${PG_CONFIG_FILE}"
 
-  if [ -n "$DATABASE_URL" ]; then
+  if [ -n "$DATABASE_URLS" ]; then
+    echo "$DATABASE_URLS" | tr , '\n' | while read url; do
+      parse_url "$url"
+      generate_config_db_entry
+    done
+  elif [ -n "$DATABASE_URL" ]; then
     parse_url "$DATABASE_URL"
     generate_config_db_entry
   else

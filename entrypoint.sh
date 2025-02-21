@@ -16,12 +16,17 @@ if [ ! -e "${_AUTH_FILE}" ]; then
   touch "${_AUTH_FILE}"
 fi
 
-if [ -n "$DATABASE_URL" ]; then
+# Extract all info from a given URL. Sets variables because shell functions can't return values.
+#
+# Parameters:
+#   - The url we should parse
+# Returns (sets variables): DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME
+function parse_url() {
   # Thanks to https://stackoverflow.com/a/17287984/146289
 
   # Allow to pass values like dj-database-url / django-environ accept
-  proto="$(echo $DATABASE_URL | grep :// | sed -e's,^\(.*://\).*,\1,g')"
-  url="$(echo $DATABASE_URL | sed -e s,$proto,,g)"
+  proto="$(echo $1 | grep :// | sed -e's,^\(.*://\).*,\1,g')"
+  url="$(echo $1 | sed -e s,$proto,,g)"
 
   # extract the user and password (if any)
   userpass="$(echo $url | grep @ | sed -r 's/^(.*)@([^@]*)$/\1/')"
@@ -43,18 +48,39 @@ if [ -n "$DATABASE_URL" ]; then
   fi
 
   DB_NAME="$(echo $url | grep / | cut -d/ -f2-)"
-fi
+}
+
+# Grabs variables set by `parse_url` and adds them to the userlist if not
+# already set in there.
+function generate_userlist_if_needed() {
+  if [ -n "${DB_USER}" -a -n "${DB_PASSWORD}" -a -e "${_AUTH_FILE}" ] && ! grep -q "^\"${DB_USER}\"" "${_AUTH_FILE}"; then
+    if [ "${AUTH_TYPE}" == "plain" ] || [ "${AUTH_TYPE}" == "scram-sha-256" ]; then
+      pass="${DB_PASSWORD}"
+    else
+      pass="md5$(echo -n "${DB_PASSWORD}${DB_USER}" | md5sum | cut -f 1 -d ' ')"
+    fi
+    echo "\"${DB_USER}\" \"${pass}\"" >> "${_AUTH_FILE}"
+    echo "Wrote authentication credentials for '${DB_USER}' to ${_AUTH_FILE}"
+  fi
+}
+
+# Grabs variables set by `parse_url` and adds them to the PG config file as a
+# database entry.
+function generate_config_db_entry() {
+  printf "\
+${DB_NAME:-*} = host=${DB_HOST:?"Setup pgbouncer config error! You must set DB_HOST env"} \
+port=${DB_PORT:-5432} auth_user=${DB_USER:-postgres}
+${CLIENT_ENCODING:+client_encoding = ${CLIENT_ENCODING}\n}\
+" >> "${PG_CONFIG_FILE}"
+}
 
 # Write the password with MD5 encryption, to avoid printing it during startup.
 # Notice that `docker inspect` will show unencrypted env variables.
-if [ -n "${DB_USER}" -a -n "${DB_PASSWORD}" -a -e "${_AUTH_FILE}" ] && ! grep -q "^\"${DB_USER}\"" "${_AUTH_FILE}"; then
-  if [ "${AUTH_TYPE}" == "plain" ] || [ "${AUTH_TYPE}" == "scram-sha-256" ]; then
-    pass="${DB_PASSWORD}"
-  else
-    pass="md5$(echo -n "${DB_PASSWORD}${DB_USER}" | md5sum | cut -f 1 -d ' ')"
-  fi
-  echo "\"${DB_USER}\" \"${pass}\"" >> "${_AUTH_FILE}"
-  echo "Wrote authentication credentials for '${DB_USER}' to ${_AUTH_FILE}"
+if [ -n "${DATABASE_URL}" ]; then
+  parse_url "${DATABASE_URL}"
+  generate_userlist_if_needed
+else
+  generate_userlist_if_needed
 fi
 
 if [ ! -f "${PG_CONFIG_FILE}" ]; then
@@ -66,10 +92,16 @@ if [ ! -f "${PG_CONFIG_FILE}" ]; then
   printf "\
 ################## Auto generated ##################
 [databases]
-${DB_NAME:-*} = host=${DB_HOST:?"Setup pgbouncer config error! You must set DB_HOST env"} \
-port=${DB_PORT:-5432} auth_user=${DB_USER:-postgres}
-${CLIENT_ENCODING:+client_encoding = ${CLIENT_ENCODING}\n}\
+" > "${PG_CONFIG_FILE}"
 
+  if [ -n "$DATABASE_URL" ]; then
+    parse_url "$DATABASE_URL"
+    generate_config_db_entry
+  else
+    generate_config_db_entry
+  fi
+
+  printf "\
 [pgbouncer]
 listen_addr = ${LISTEN_ADDR:-0.0.0.0}
 listen_port = ${LISTEN_PORT:-5432}
@@ -154,7 +186,7 @@ ${TCP_KEEPIDLE:+tcp_keepidle = ${TCP_KEEPIDLE}\n}\
 ${TCP_KEEPINTVL:+tcp_keepintvl = ${TCP_KEEPINTVL}\n}\
 ${TCP_USER_TIMEOUT:+tcp_user_timeout = ${TCP_USER_TIMEOUT}\n}\
 ################## end file ##################
-" > "${PG_CONFIG_FILE}"
+" >> "${PG_CONFIG_FILE}"
   cat "${PG_CONFIG_FILE}"
 fi
 

@@ -16,7 +16,7 @@ if [ ! -e "${_AUTH_FILE}" ]; then
   touch "${_AUTH_FILE}"
 fi
 
-# Extract all info from a given URL. Sets variables because shell functions can't return values.
+# Extract all info from a given URL. Sets variables because shell functions can't return multiple values.
 #
 # Parameters:
 #   - The url we should parse
@@ -50,8 +50,7 @@ function parse_url() {
   DB_NAME="$(echo $url | grep / | cut -d/ -f2-)"
 }
 
-# Grabs variables set by `parse_url` and adds them to the userlist if not
-# already set in there.
+# Grabs variables set by `parse_url` and adds them to the userlist if not already set in there.
 function generate_userlist_if_needed() {
   if [ -n "${DB_USER}" -a -n "${DB_PASSWORD}" -a -e "${_AUTH_FILE}" ] && ! grep -q "^\"${DB_USER}\"" "${_AUTH_FILE}"; then
     if [ "${AUTH_TYPE}" == "plain" ] || [ "${AUTH_TYPE}" == "scram-sha-256" ]; then
@@ -64,8 +63,7 @@ function generate_userlist_if_needed() {
   fi
 }
 
-# Grabs variables set by `parse_url` and adds them to the PG config file as a
-# database entry.
+# Grabs variables set by `parse_url` and adds them to the PG config file as a database entry.
 function generate_config_db_entry() {
   printf "\
 ${DB_NAME:-*} = host=${DB_HOST:?"Setup pgbouncer config error! You must set DB_HOST env"} \
@@ -81,10 +79,10 @@ if [ -n "${DATABASE_URLS}" ]; then
     parse_url "$url"
     generate_userlist_if_needed
   done
-elif [ -n "${DATABASE_URL}" ]; then
-  parse_url "${DATABASE_URL}"
-  generate_userlist_if_needed
 else
+  if [ -n "${DATABASE_URL}" ]; then
+    parse_url "${DATABASE_URL}"
+  fi
   generate_userlist_if_needed
 fi
 
@@ -104,10 +102,10 @@ if [ ! -f "${PG_CONFIG_FILE}" ]; then
       parse_url "$url"
       generate_config_db_entry
     done
-  elif [ -n "$DATABASE_URL" ]; then
-    parse_url "$DATABASE_URL"
-    generate_config_db_entry
   else
+    if [ -n "$DATABASE_URL" ]; then
+      parse_url "$DATABASE_URL"
+    fi
     generate_config_db_entry
   fi
 

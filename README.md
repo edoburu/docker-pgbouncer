@@ -49,7 +49,7 @@ psql 'postgresql://user:pass@localhost/dbname'
 
 > [!NOTE]
 > If you need quick multi-user setup you can use `DATABASE_URLS` (instead of `DATABASE_URL`) with a comma (`,`) separated list of URLs.
-> 
+>
 > ```sh
 > docker run --rm \
 >     -e DATABASE_URLS="postgres://foo:123@postgres-host/foo,postgres://bar:456@postgres-host/bar" \

@@ -1,5 +1,5 @@
-IMAGE_NAME=edoburu/pgbouncer
-IMAGE_VERSION=latest
+IMAGE_NAME?=edoburu/pgbouncer
+IMAGE_VERSION?=latest
 
 docker-x86:
 	docker buildx build \

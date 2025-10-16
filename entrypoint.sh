@@ -8,7 +8,7 @@ set -e
 
 PG_CONFIG_DIR=/etc/pgbouncer
 PG_CONFIG_FILE="${PG_CONFIG_DIR}/pgbouncer.ini"
-_AUTH_FILE="${AUTH_FILE:-$PG_CONFIG_DIR/userlist.txt}"
+_AUTH_FILE="${AUTH_FILE:-${PG_CONFIG_DIR}/userlist.txt}"
 
 # Workaround userlist.txt missing issue
 # https://github.com/edoburu/docker-pgbouncer/issues/33
@@ -21,39 +21,39 @@ fi
 # Parameters:
 #   - The url we should parse
 # Returns (sets variables): DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME
-function parse_url() {
+parse_url() {
   # Thanks to https://stackoverflow.com/a/17287984/146289
 
   # Allow to pass values like dj-database-url / django-environ accept
-  proto="$(echo $1 | grep :// | sed -e's,^\(.*://\).*,\1,g')"
-  url="$(echo $1 | sed -e s,$proto,,g)"
+  proto="$(echo "$1" | grep :// | sed -e's,^\(.*://\).*,\1,g')"
+  url="$(echo "$1" | sed -e s,"${proto}",,g)"
 
   # extract the user and password (if any)
-  userpass="$(echo $url | grep @ | sed -r 's/^(.*)@([^@]*)$/\1/')"
-  DB_PASSWORD="$(echo $userpass | grep : | cut -d: -f2)"
+  userpass="$(echo "${url}" | grep @ | sed -r 's/^(.*)@([^@]*)$/\1/')"
+  DB_PASSWORD="$(echo "${userpass}" | grep : | cut -d: -f2)"
   if [ -n "${DB_PASSWORD}" ]; then
-    DB_USER="$(echo $userpass | grep : | cut -d: -f1)"
+    DB_USER="$(echo "${userpass}" | grep : | cut -d: -f1)"
   else
     DB_USER="${userpass}"
   fi
 
   # extract the host -- updated
-  hostport=`echo $url | sed -e s,$userpass@,,g | cut -d/ -f1`
-  port=`echo $hostport | grep : | cut -d: -f2`
-  if [ -n "$port" ]; then
-    DB_HOST=`echo $hostport | grep : | cut -d: -f1`
+  hostport=$(echo "${url}" | sed -e s,"${userpass}"@,,g | cut -d/ -f1)
+  port=$(echo "${hostport}" | grep : | cut -d: -f2)
+  if [ -n "${port}" ]; then
+    DB_HOST=$(echo "${hostport}" | grep : | cut -d: -f1)
     DB_PORT="${port}"
   else
     DB_HOST="${hostport}"
   fi
 
-  DB_NAME="$(echo $url | grep / | cut -d/ -f2-)"
+  DB_NAME="$(echo "${url}" | grep / | cut -d/ -f2-)"
 }
 
 # Grabs variables set by `parse_url` and adds them to the userlist if not already set in there.
-function generate_userlist_if_needed() {
-  if [ -n "${DB_USER}" -a -n "${DB_PASSWORD}" -a -e "${_AUTH_FILE}" ] && ! grep -q "^\"${DB_USER}\"" "${_AUTH_FILE}"; then
-    if [ "${AUTH_TYPE}" == "plain" ] || [ "${AUTH_TYPE}" == "scram-sha-256" ]; then
+generate_userlist_if_needed() {
+  if [ -n "${DB_USER}" ] && [ -n "${DB_PASSWORD}" ] && [ -e "${_AUTH_FILE}" ] && ! grep -q "^\"${DB_USER}\"" "${_AUTH_FILE}"; then
+    if [ "${AUTH_TYPE}" = "plain" ] || [ "${AUTH_TYPE}" = "scram-sha-256" ]; then
       pass="${DB_PASSWORD}"
     else
       pass="md5$(echo -n "${DB_PASSWORD}${DB_USER}" | md5sum | cut -f 1 -d ' ')"
@@ -64,7 +64,7 @@ function generate_userlist_if_needed() {
 }
 
 # Grabs variables set by `parse_url` and adds them to the PG config file as a database entry.
-function generate_config_db_entry() {
+generate_config_db_entry() {
   printf "\
 ${DB_NAME:-*} = host=${DB_HOST:?"Setup pgbouncer config error! You must set DB_HOST env"} \
 port=${DB_PORT:-5432} auth_user=${DB_USER:-postgres}
@@ -75,8 +75,8 @@ ${CLIENT_ENCODING:+client_encoding = ${CLIENT_ENCODING}\n}\
 # Write the password with MD5 encryption, to avoid printing it during startup.
 # Notice that `docker inspect` will show unencrypted env variables.
 if [ -n "${DATABASE_URLS}" ]; then
-  echo "${DATABASE_URLS}" | tr , '\n' | while read url; do
-    parse_url "$url"
+  echo "${DATABASE_URLS}" | tr , '\n' | while read -r url; do
+    parse_url "${url}"
     generate_userlist_if_needed
   done
 else
@@ -97,14 +97,14 @@ if [ ! -f "${PG_CONFIG_FILE}" ]; then
 [databases]
 " > "${PG_CONFIG_FILE}"
 
-  if [ -n "$DATABASE_URLS" ]; then
-    echo "$DATABASE_URLS" | tr , '\n' | while read url; do
-      parse_url "$url"
+  if [ -n "${DATABASE_URLS}" ]; then
+    echo "${DATABASE_URLS}" | tr , '\n' | while read -r url; do
+      parse_url "${url}"
       generate_config_db_entry
     done
   else
-    if [ -n "$DATABASE_URL" ]; then
-      parse_url "$DATABASE_URL"
+    if [ -n "${DATABASE_URL}" ]; then
+      parse_url "${DATABASE_URL}"
     fi
     generate_config_db_entry
   fi

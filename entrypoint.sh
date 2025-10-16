@@ -114,7 +114,7 @@ if [ ! -f "${PG_CONFIG_FILE}" ]; then
 listen_addr = ${LISTEN_ADDR:-0.0.0.0}
 listen_port = ${LISTEN_PORT:-5432}
 unix_socket_dir = ${UNIX_SOCKET_DIR}
-user = postgres
+${USER:+user = ${USER}\n}\
 auth_file = ${_AUTH_FILE}
 ${AUTH_HBA_FILE:+auth_hba_file = ${AUTH_HBA_FILE}\n}\
 auth_type = ${AUTH_TYPE:-md5}

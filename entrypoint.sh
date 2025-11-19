@@ -146,6 +146,7 @@ ${STATS_PERIOD:+stats_period = ${STATS_PERIOD}\n}\
 ${VERBOSE:+verbose = ${VERBOSE}\n}\
 admin_users = ${ADMIN_USERS:-postgres}
 ${STATS_USERS:+stats_users = ${STATS_USERS}\n}\
+${LOGFILE:+logfile = ${LOGFILE}\n}\n
 
 # Connection sanity checks, timeouts
 ${SERVER_RESET_QUERY:+server_reset_query = ${SERVER_RESET_QUERY}\n}\

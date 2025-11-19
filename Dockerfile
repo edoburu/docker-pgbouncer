@@ -1,4 +1,4 @@
-FROM alpine:3.21 AS build
+FROM alpine:3.22 AS build
 ARG VERSION=1.24.1
 
 # Inspiration from https://github.com/gmr/alpine-pgbouncer/blob/master/Dockerfile
@@ -16,7 +16,7 @@ RUN curl -sS -o /pgbouncer.tar.gz -L https://pgbouncer.github.io/downloads/files
 
 RUN cd /pgbouncer && ./configure --prefix=/usr && make
 
-FROM alpine:3.21
+FROM alpine:3.22
 
 RUN apk add --no-cache busybox libevent postgresql-client && \
   mkdir -p /etc/pgbouncer /var/log/pgbouncer /var/run/pgbouncer && \

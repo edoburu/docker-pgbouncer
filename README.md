@@ -77,6 +77,37 @@ docker run --rm \
     edoburu/pgbouncer
 ```
 
+Configuring multiple databases
+-------------------------------
+
+To configure multiple databases from a single PgBouncer instance, use the `DB_CONFIGURATIONS` environment variable. This allows you to define multiple database connections in the `[databases]` section of the pgbouncer.ini file.
+
+When `DB_CONFIGURATIONS` is set, it will be used directly in the `[databases]` section, overriding the default behavior of using `DB_NAME`, `DB_HOST`, `DB_PORT`, and `DB_USER` variables.
+
+The format follows the standard pgbouncer.ini `[databases]` section syntax. Use newlines (`\n`) to separate multiple database entries:
+
+```sh
+docker run --rm \
+    -e DB_CONFIGURATIONS="db1 = host=host1.example.com port=5432 user=user1
+db2 = host=host2.example.com port=5432 user=user2
+db3 = host=host3.example.com port=5433 user=user3" \
+    -p 5432:5432 \
+    edoburu/pgbouncer
+```
+
+Or using a single line with escaped newlines:
+
+```sh
+docker run --rm \
+    -e DB_CONFIGURATIONS="db1 = host=host1.example.com port=5432 user=user1\ndb2 = host=host2.example.com port=5432 user=user2" \
+    -p 5432:5432 \
+    edoburu/pgbouncer
+```
+
+If `DB_CONFIGURATIONS` is not set, the container will fall back to the default behavior using `DB_NAME`, `DB_HOST`, `DB_PORT`, and `DB_USER` environment variables (or `DATABASE_URL`).
+
+**Note:** When using `DB_CONFIGURATIONS`, make sure to include all required connection parameters (host, port, user) for each database entry. The format should match the pgbouncer.ini `[databases]` section syntax exactly.
+
 Kubernetes integration
 ----------------------
 

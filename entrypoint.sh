@@ -47,6 +47,16 @@ function parse_url() {
     DB_HOST="${hostport}"
   fi
 
+  # Check if the host is an IP address or hostname
+  if [[ "$DB_HOST" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+    # If it's an IP, try to resolve it to a hostname
+    DB_HOST=$(getent hosts "$DB_HOST" | awk '{ print $2 }')
+    # If the resolution fails (no hostname found), we can leave it as is (i.e., IP)
+    if [ -z "$DB_HOST" ]; then
+      echo "Warning: DB_HOST is an IP address, and no hostname resolution was performed."
+    fi
+  fi
+
   DB_NAME="$(echo $url | grep / | cut -d/ -f2-)"
 }
 

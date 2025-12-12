@@ -10,7 +10,7 @@ Features:
 * Uses standard Postgres port 5432, to work transparently for applications.
 * Includes PostgreSQL client tools such as ``psql``, ``pg_isready``
 * MD5 authentication by default.
-* `/etc/pgbouncer/pgbouncer.ini` and `/etc/pbbouncer/userlist.txt` are auto-created if they don't exist.
+* `/etc/pgbouncer/pgbouncer.ini` and `/etc/pgbouncer/userlist.txt` are auto-created if they don't exist.
 
 Why use PgBouncer
 -----------------

@@ -17,7 +17,7 @@ services:
     build:
       context: ../..
       args:
-        VERSION: 1.24.1
+        VERSION: 1.25.1
     ### download from dockerhub
     # image: edoburu/pgbouncer:latest
     restart: always

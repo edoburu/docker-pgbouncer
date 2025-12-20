@@ -1,5 +1,5 @@
 FROM alpine:3.22 AS build
-ARG VERSION=1.24.1
+ARG VERSION=1.25.1
 
 # Inspiration from https://github.com/gmr/alpine-pgbouncer/blob/master/Dockerfile
 # hadolint ignore=DL3003,DL3018

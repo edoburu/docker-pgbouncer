@@ -29,10 +29,6 @@ services:
       - AUTH_TYPE=scram-sha-256 # remove/comment this line if using postgres:13 and lower
       - POOL_MODE=transaction
       - ADMIN_USERS=postgres,dbuser
-      - LOGFILE=/var/log/pgbouncer/pgbouncer.log
-      - VERBOSE=0
-    volumes:
-      - ./logs:/var/log/pgbouncer
     ports:
       - "5432:5432"
     depends_on:

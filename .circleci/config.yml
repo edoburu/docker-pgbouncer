@@ -1,0 +1,19 @@
+version: 2.1
+
+orbs:
+  aws-ecr: circleci/aws-ecr@9.8.1
+
+workflows:
+  build_and_push:
+    jobs:
+      - aws-ecr/build_and_push_image:
+          context: aws
+          repo: pgbouncer
+          tag: ${CIRCLE_SHA1}
+          dockerfile: Dockerfile
+          filters:
+            branches:
+              only:
+                - /^release-.*$/
+                - master
+                - dev

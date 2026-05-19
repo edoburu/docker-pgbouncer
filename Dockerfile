@@ -3,7 +3,8 @@ ARG VERSION=1.25.1
 
 # Inspiration from https://github.com/gmr/alpine-pgbouncer/blob/master/Dockerfile
 # hadolint ignore=DL3003,DL3018
-RUN apk add --no-cache autoconf automake curl gcc libc-dev libevent-dev libtool make openssl-dev pkgconfig
+RUN apk add --no-cache autoconf automake curl gcc libc-dev libevent-dev libtool make openssl-dev pkgconfig && \
+  apk upgrade --no-cache
 
 # build version for release
 RUN curl -sS -o /pgbouncer.tar.gz -L https://pgbouncer.github.io/downloads/files/$VERSION/pgbouncer-$VERSION.tar.gz && \
@@ -13,7 +14,7 @@ RUN cd /pgbouncer && ./configure --prefix=/usr && make -j$(nproc) pgbouncer && s
 
 FROM alpine:3.22
 
-RUN apk add --no-cache libevent postgresql-client && \
+RUN apk add --no-cache libevent postgresql-client && apk upgrade --no-cache && \
   mkdir -p /etc/pgbouncer /var/log/pgbouncer /var/run/pgbouncer && \
   touch /etc/pgbouncer/userlist.txt && \
   chown -R postgres /var/log/pgbouncer /var/run/pgbouncer /etc/pgbouncer

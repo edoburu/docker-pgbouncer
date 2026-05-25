@@ -72,6 +72,9 @@ docker run --rm \
     edoburu/pgbouncer
 ```
 
+As an option, you can add pool_mode at the end using a slash.\
+DATABASE_URL="postgres://user:pass@postgres-host/database/**session**"
+
 Kubernetes integration
 ----------------------
 

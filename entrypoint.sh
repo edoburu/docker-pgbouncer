@@ -21,33 +21,33 @@ fi
 # Parameters:
 #   - The url we should parse
 # Returns (sets variables): DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME, POOL_MODE
-function parse_url() {                                                                                                                                 
-  proto="$(echo $1 | grep :// | sed -e's,^\(.*://\).*,\1,g')"                                                                                          
-  url="$(echo $1 | sed -e s,$proto,,g)"                                                                                                                
-  userpass="$(echo $url | grep @ | sed -r 's/^(.*)@([^@]*)$/\1/')"                                                                                     
-  DB_PASSWORD="$(echo $userpass | grep : | cut -d: -f2)"                                                                                               
-  if [ -n "${DB_PASSWORD}" ]; then                                                                                                                     
-    DB_USER="$(echo $userpass | grep : | cut -d: -f1)"                                                                                                 
-  else                                                                                                                                                 
-    DB_USER="${userpass}"                                                                                                                              
-  fi                                                                                                                                                   
-  hostport=`echo $url | sed -e s,$userpass@,,g | cut -d/ -f1`                                                                                          
-  port=`echo $hostport | grep : | cut -d: -f2`                                                                                                         
-  if [ -n "$port" ]; then                                                                                                                              
-    DB_HOST=`echo $hostport | grep : | cut -d: -f1`                                                                                                    
-    DB_PORT="${port}"                                                                                                                                  
-  else                                                                                                                                                 
-    DB_HOST="${hostport}"                                                                                                                              
-    DB_PORT=5432                                                                                                                                       
-  fi                                                                                                                                                   
-  # Parse database name and optional pool_mode                                                                                                         
-  path=$(echo $url | cut -d/ -f2-)                                                                                                                     
-  DB_NAME=$(echo "$path" | cut -d/ -f1)                                                                                                                
-  POOL_MODE=$(echo "$path" | cut -d/ -f2)                                                                                                              
-  # If pool_mode is same as db_name or empty, clear it                                                                                                 
-  if [ -z "$POOL_MODE" ] || [ "$POOL_MODE" = "$DB_NAME" ]; then                                                                                        
-    POOL_MODE=""                                                                                                                                       
-  fi                                                                                                                                                   
+function parse_url() {
+  proto="$(echo $1 | grep :// | sed -e's,^\(.*://\).*,\1,g')"
+  url="$(echo $1 | sed -e s,$proto,,g)"
+  userpass="$(echo $url | grep @ | sed -r 's/^(.*)@([^@]*)$/\1/')"
+  DB_PASSWORD="$(echo $userpass | grep : | cut -d: -f2)"
+  if [ -n "${DB_PASSWORD}" ]; then
+    DB_USER="$(echo $userpass | grep : | cut -d: -f1)"
+  else
+    DB_USER="${userpass}"
+  fi
+  hostport=`echo $url | sed -e s,$userpass@,,g | cut -d/ -f1`
+  port=`echo $hostport | grep : | cut -d: -f2`
+  if [ -n "$port" ]; then
+    DB_HOST=`echo $hostport | grep : | cut -d: -f1`
+    DB_PORT="${port}"
+  else
+    DB_HOST="${hostport}"
+    DB_PORT=5432
+  fi
+  # Parse database name and optional pool_mode
+  path=$(echo $url | cut -d/ -f2-)
+  DB_NAME=$(echo "$path" | cut -d/ -f1)
+  POOL_MODE=$(echo "$path" | cut -d/ -f2)
+  # If pool_mode is same as db_name or empty, clear it
+  if [ -z "$POOL_MODE" ] || [ "$POOL_MODE" = "$DB_NAME" ]; then
+    POOL_MODE=""
+  fi
 }
 
 # Grabs variables set by `parse_url` and adds them to the userlist if not already set in there.

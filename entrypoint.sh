@@ -21,9 +21,11 @@ fi
 # Parameters:
 #   - The url we should parse
 # Returns (sets variables): DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME, POOL_MODE
+
 function parse_url() {
   proto="$(echo $1 | grep :// | sed -e's,^\(.*://\).*,\1,g')"
   url="$(echo $1 | sed -e s,$proto,,g)"
+
   userpass="$(echo $url | grep @ | sed -r 's/^(.*)@([^@]*)$/\1/')"
   DB_PASSWORD="$(echo $userpass | grep : | cut -d: -f2)"
   if [ -n "${DB_PASSWORD}" ]; then
@@ -31,6 +33,7 @@ function parse_url() {
   else
     DB_USER="${userpass}"
   fi
+
   hostport=`echo $url | sed -e s,$userpass@,,g | cut -d/ -f1`
   port=`echo $hostport | grep : | cut -d: -f2`
   if [ -n "$port" ]; then
@@ -40,10 +43,12 @@ function parse_url() {
     DB_HOST="${hostport}"
     DB_PORT=5432
   fi
+
   # Parse database name and optional pool_mode
   path=$(echo $url | cut -d/ -f2-)
   DB_NAME=$(echo "$path" | cut -d/ -f1)
   POOL_MODE=$(echo "$path" | cut -d/ -f2)
+
   # If pool_mode is same as db_name or empty, clear it
   if [ -z "$POOL_MODE" ] || [ "$POOL_MODE" = "$DB_NAME" ]; then
     POOL_MODE=""
@@ -64,14 +69,14 @@ function generate_userlist_if_needed() {
 }
 
 # Grabs variables set by `parse_url` and adds them to the PG config file as a database entry.
-function generate_config_db_entry() {                                                                                                                  
-  printf "%s = host=%s port=%s auth_user=%s%s%s\n" \                                                                                                   
-    "${DB_NAME:-*}" \                                                                                                                                  
-    "${DB_HOST:?"Setup pgbouncer config error! You must set DB_HOST env"}" \                                                                           
-    "${DB_PORT:-5432}" \                                                                                                                               
-    "${DB_USER:-postgres}" \                                                                                                                           
-    "${POOL_MODE:+ pool_mode=${POOL_MODE}}" \                                                                                                          
-    "${CLIENT_ENCODING:+ client_encoding=${CLIENT_ENCODING}}" >> "${PG_CONFIG_FILE}"                                                                   
+function generate_config_db_entry() {
+  printf "%s = host=%s port=%s auth_user=%s%s%s\n" \
+    "${DB_NAME:-*}" \
+    "${DB_HOST:?"Setup pgbouncer config error! You must set DB_HOST env"}" \
+    "${DB_PORT:-5432}" \
+    "${DB_USER:-postgres}" \
+    "${POOL_MODE:+ pool_mode=${POOL_MODE}}" \
+    "${CLIENT_ENCODING:+ client_encoding=${CLIENT_ENCODING}}" >> "${PG_CONFIG_FILE}"
 }
 
 # Write the password with MD5 encryption, to avoid printing it during startup.

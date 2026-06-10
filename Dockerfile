@@ -11,7 +11,7 @@ RUN curl -sS -o /pgbouncer.tar.gz -L https://pgbouncer.github.io/downloads/files
 
 RUN cd /pgbouncer && ./configure --prefix=/usr && make -j$(nproc) pgbouncer && strip pgbouncer
 
-FROM alpine:3.22
+FROM alpine:3.23
 
 RUN apk add --no-cache libevent postgresql-client && \
   mkdir -p /etc/pgbouncer /var/log/pgbouncer /var/run/pgbouncer && \

@@ -72,6 +72,20 @@ docker run --rm \
     edoburu/pgbouncer
 ```
 
+As an option, you can pass per-database pgbouncer settings through the
+connection URL query string. Every `key=value` pair after `?` is added
+verbatim to the database entry in the generated config:
+
+    DATABASE_URL="postgres://user:pass@postgres-host/database?pool_mode=session"
+
+Multiple options can be combined with `&`:
+
+    DATABASE_URL="postgres://user:pass@postgres-host/database?pool_mode=transaction&pool_size=20&min_pool_size=5"
+
+Parameter names are not validated — they are passed to pgbouncer as-is,
+so it is up to you to use valid per-database options (see the
+[pgbouncer docs](https://pgbouncer.github.io/config.html#section-databases)).
+
 Kubernetes integration
 ----------------------
 

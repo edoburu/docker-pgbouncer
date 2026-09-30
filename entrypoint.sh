@@ -18,9 +18,15 @@ fi
 
 # Extract all info from a given URL. Sets variables because shell functions can't return multiple values.
 #
+# Supported format:
+#   proto://user[:password]@host[:port]/dbname[?key1=value1&key2=value2...]
+#
+# Any parameters after '?' are collected verbatim into DB_QUERY and later
+# appended to the database entry as-is (no validation of parameter names).
+#
 # Parameters:
 #   - The url we should parse
-# Returns (sets variables): DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME
+# Returns (sets variables): DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, DB_NAME, DB_QUERY
 function parse_url() {
   # Thanks to https://stackoverflow.com/a/17287984/146289
 
@@ -37,17 +43,28 @@ function parse_url() {
     DB_USER="${userpass}"
   fi
 
-  # extract the host -- updated
-  hostport=`echo $url | sed -e s,$userpass@,,g | cut -d/ -f1`
-  port=`echo $hostport | grep : | cut -d: -f2`
+  # everything after the userinfo: host[:port]/dbname[?query]
+  afterhost="$(echo $url | sed -e s,$userpass@,,g)"
+
+  # extract the host and port
+  hostport="$(echo $afterhost | cut -d/ -f1)"
+  port="$(echo $hostport | grep : | cut -d: -f2)"
   if [ -n "$port" ]; then
-    DB_HOST=`echo $hostport | grep : | cut -d: -f1`
-    DB_PORT="${port}"
+    DB_HOST="$(echo $hostport | grep : | cut -d: -f1)"
+    DB_PORT="$port"
   else
-    DB_HOST="${hostport}"
+    DB_HOST="$hostport"
+    DB_PORT=5432
   fi
 
-  DB_NAME="$(echo $url | grep / | cut -d/ -f2-)"
+  # split the path from the query string (only if a path is actually present)
+  if echo "$afterhost" | grep -q /; then
+    pathquery="$(echo $afterhost | cut -d/ -f2-)"
+  else
+    pathquery=""
+  fi
+  DB_NAME="$(echo "$pathquery" | cut -d? -f1)"
+  DB_QUERY="$(echo "$pathquery" | grep '?' | cut -d? -f2-)"
 }
 
 # Grabs variables set by `parse_url` and adds them to the userlist if not already set in there.
@@ -64,12 +81,28 @@ function generate_userlist_if_needed() {
 }
 
 # Grabs variables set by `parse_url` and adds them to the PG config file as a database entry.
+# All parameters supplied in the URL query string are appended verbatim; validity of
+# parameter names is the user's responsibility.
 function generate_config_db_entry() {
-  printf "\
-${DB_NAME:-*} = host=${DB_HOST:?"Setup pgbouncer config error! You must set DB_HOST env"} \
-port=${DB_PORT:-5432} auth_user=${DB_USER:-postgres}
-${CLIENT_ENCODING:+client_encoding = ${CLIENT_ENCODING}\n}\
-" >> "${PG_CONFIG_FILE}"
+  entry="${DB_NAME:-*} = host=${DB_HOST:?"Setup pgbouncer config error! You must set DB_HOST env"} port=${DB_PORT:-5432} auth_user=${DB_USER:-postgres}"
+
+  # backwards compatibility: client_encoding from the environment
+  [ -n "${CLIENT_ENCODING}" ] && entry="${entry} client_encoding=${CLIENT_ENCODING}"
+
+  # append any parameters supplied via the URL query string, as-is
+  if [ -n "${DB_QUERY}" ]; then
+    OLD_IFS=$IFS
+    IFS='&'
+    for kv in $DB_QUERY; do
+      key="$(echo "$kv" | cut -d= -f1)"
+      val="$(echo "$kv" | cut -d= -f2-)"
+      [ -z "$key" ] || [ -z "$val" ] && continue
+      entry="${entry} ${key}=${val}"
+    done
+    IFS=$OLD_IFS
+  fi
+
+  echo "${entry}" >> "${PG_CONFIG_FILE}"
 }
 
 # Write the password with MD5 encryption, to avoid printing it during startup.

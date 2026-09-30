@@ -1,0 +1,5 @@
+# boot: fails
+# CLIENT_ENCODING renders inside [databases], which pgbouncer cannot parse.
+DB_HOST=db.example.com
+DB_NAME=appdb
+CLIENT_ENCODING=UTF8

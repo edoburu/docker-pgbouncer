@@ -1,0 +1,2 @@
+Creating pgbouncer config in /etc/pgbouncer
+/entrypoint.sh: line 68: DB_HOST: Setup pgbouncer config error! You must set DB_HOST env

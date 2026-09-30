@@ -1,0 +1,2 @@
+# boot: yes
+DB_HOST=db.example.com

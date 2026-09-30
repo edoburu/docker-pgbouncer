@@ -1,0 +1,2 @@
+# boot: yes
+DATABASE_URL=postgres://appuser:s3cret@db.example.com:6543/appdb

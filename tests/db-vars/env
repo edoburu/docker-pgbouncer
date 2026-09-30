@@ -1,0 +1,6 @@
+# boot: yes
+DB_HOST=db.example.com
+DB_PORT=6543
+DB_NAME=appdb
+DB_USER=appuser
+DB_PASSWORD=s3cret

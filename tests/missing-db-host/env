@@ -1,0 +1,3 @@
+# expect: failure
+DB_NAME=appdb
+DB_USER=appuser

@@ -1,3 +1,5 @@
 Makefile
 Dockerfile
 /examples/
+/tests/
+/.github/

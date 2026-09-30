@@ -1,0 +1,72 @@
+name: tests
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Every variable the entrypoint reads has a case
+        run: tests/coverage.sh
+
+      - uses: docker/setup-buildx-action@v4
+
+      - name: Build the image
+        run: make docker-x86 IMAGE_VERSION=test
+
+      - name: Hand the image to the test jobs
+        run: docker save edoburu/pgbouncer:test -o image.tar
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: image
+          path: image.tar
+          retention-days: 1
+
+  rendered-config:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: image
+
+      - run: docker load -i image.tar
+
+      - name: Rendered config matches the expectations
+        run: tests/run.sh
+        env:
+          IMAGE: edoburu/pgbouncer:test
+
+  live:
+    needs: build
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        postgres: ['18-alpine', '17-alpine']
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: image
+
+      - run: docker load -i image.tar
+
+      - name: Pooler serves traffic with the config it loaded
+        run: tests/live.sh
+        env:
+          IMAGE: edoburu/pgbouncer:test
+          POSTGRES_IMAGE: postgres:${{ matrix.postgres }}

@@ -1,0 +1,4 @@
+# boot: yes
+# The third URL has no port and inherits 5433 from the second, one subshell
+# reusing DB_PORT across iterations. Pinned as-is, see tests/README.md.
+DATABASE_URLS=postgres://baseuser:basepw@db1.example.com:5432/base,postgres://paiduser:paidpw@db2.example.com:5433/paid,postgres://freeuser:freepw@db3.example.com/free

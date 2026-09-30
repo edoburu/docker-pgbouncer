@@ -131,6 +131,7 @@ ${RESERVE_POOL_TIMEOUT:+reserve_pool_timeout = ${RESERVE_POOL_TIMEOUT}\n}\
 ${MAX_DB_CONNECTIONS:+max_db_connections = ${MAX_DB_CONNECTIONS}\n}\
 ${MAX_USER_CONNECTIONS:+max_user_connections = ${MAX_USER_CONNECTIONS}\n}\
 ${SERVER_ROUND_ROBIN:+server_round_robin = ${SERVER_ROUND_ROBIN}\n}\
+${PEER_ID:+peer_id = ${PEER_ID}\n}\
 ignore_startup_parameters = ${IGNORE_STARTUP_PARAMETERS:-extra_float_digits}
 ${DISABLE_PQEXEC:+disable_pqexec = ${DISABLE_PQEXEC}\n}\
 ${APPLICATION_NAME_ADD_HOST:+application_name_add_host = ${APPLICATION_NAME_ADD_HOST}\n}\
@@ -187,6 +188,7 @@ ${PKT_BUF:+pkt_buf = ${PKT_BUF}\n}\
 ${MAX_PACKET_SIZE:+max_packet_size = ${MAX_PACKET_SIZE}\n}\
 ${LISTEN_BACKLOG:+listen_backlog = ${LISTEN_BACKLOG}\n}\
 ${SBUF_LOOPCNT:+sbuf_loopcnt = ${SBUF_LOOPCNT}\n}\
+${SO_REUSEPORT:+so_reuseport = ${SO_REUSEPORT}\n}\
 ${SUSPEND_TIMEOUT:+suspend_timeout = ${SUSPEND_TIMEOUT}\n}\
 ${TCP_DEFER_ACCEPT:+tcp_defer_accept = ${TCP_DEFER_ACCEPT}\n}\
 ${TCP_KEEPALIVE:+tcp_keepalive = ${TCP_KEEPALIVE}\n}\
@@ -199,5 +201,76 @@ ${TCP_USER_TIMEOUT:+tcp_user_timeout = ${TCP_USER_TIMEOUT}\n}\
   cat "${PG_CONFIG_FILE}"
 fi
 
-echo "Starting $*..."
-exec "$@"
+_detect_cpus() {
+  # cgroups v2
+  if [ -r /sys/fs/cgroup/cpu.max ]; then
+    _quota=$(cut -d' ' -f1 /sys/fs/cgroup/cpu.max)
+    _period=$(cut -d' ' -f2 /sys/fs/cgroup/cpu.max)
+    if [ "${_quota}" != "max" ]; then
+      echo $(( (_quota + _period - 1) / _period ))
+      return
+    fi
+  # cgroups v1
+  elif [ -r /sys/fs/cgroup/cpu/cpu.cfs_quota_us ]; then
+    _quota=$(cat /sys/fs/cgroup/cpu/cpu.cfs_quota_us)
+    _period=$(cat /sys/fs/cgroup/cpu/cpu.cfs_period_us)
+    if [ "${_quota}" -gt 0 ]; then
+      echo $(( (_quota + _period - 1) / _period ))
+      return
+    fi
+  fi
+  echo 1
+}
+
+_PGBOUNCER_WORKERS="${PGBOUNCER_WORKERS:-$(_detect_cpus)}"
+
+if [ "${_PGBOUNCER_WORKERS}" -le 1 ]; then
+  echo "Starting $*..."
+  exec "$@"
+fi
+
+echo "Starting ${_PGBOUNCER_WORKERS} pgbouncer workers..."
+
+# Pre-create per-worker unix socket dirs and build the [peers] section so each
+# worker can route query cancellations to the correct peer.
+_peers_section="[peers]"
+_j=0
+while [ "${_j}" -lt "${_PGBOUNCER_WORKERS}" ]; do
+  _j=$((_j + 1))
+  mkdir -p "/var/run/pgbouncer/${_j}"
+  _peers_section=$(printf '%s\n%s = host=/var/run/pgbouncer/%s' "${_peers_section}" "${_j}" "${_j}")
+done
+
+_pids=""
+_i=0
+while [ "${_i}" -lt "${_PGBOUNCER_WORKERS}" ]; do
+  _i=$((_i + 1))
+  _worker_cfg="/etc/pgbouncer/pgbouncer-${_i}.ini"
+
+  # Copy base config; append per-worker overrides (pgbouncer uses last value wins)
+  cp "${PG_CONFIG_FILE}" "${_worker_cfg}"
+  printf '\nunix_socket_dir = /var/run/pgbouncer/%s\npeer_id = %s\nso_reuseport = 1\n\n%s\n' \
+    "${_i}" "${_i}" "${_peers_section}" >> "${_worker_cfg}"
+
+  "$1" "$_worker_cfg" &
+  _pids="$_pids $!"
+  echo "  worker $_i: PID $!"
+done
+
+_stop_workers() {
+  kill ${_pids} 2>/dev/null || true
+  wait ${_pids} 2>/dev/null || true
+}
+trap _stop_workers TERM INT
+
+# Exit if any worker dies
+while true; do
+  for _pid in ${_pids}; do
+    if ! kill -0 "${_pid}" 2>/dev/null; then
+      echo "Worker PID ${_pid} exited, stopping all workers"
+      _stop_workers
+      exit 1
+    fi
+  done
+  sleep 1
+done

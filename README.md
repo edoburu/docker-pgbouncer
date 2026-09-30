@@ -72,6 +72,31 @@ docker run --rm \
     edoburu/pgbouncer
 ```
 
+Multi-core / multi-worker mode
+------------------------------
+
+PgBouncer is single-threaded. To use more than one CPU core, the image can run multiple PgBouncer processes that all share the same TCP port via `SO_REUSEPORT`, with the kernel distributing incoming connections across them.
+
+The number of workers is automatically detected from the container's CPU quota (cgroup-aware) and defaults to 1 on unconstrained containers. Override it with `PGBOUNCER_WORKERS`:
+
+```sh
+docker run --rm \
+    -e DATABASE_URL="postgres://user:pass@postgres-host/database" \
+    -e PGBOUNCER_WORKERS=4 \
+    --cpus=4 \
+    -p 5432:5432 \
+    edoburu/pgbouncer
+```
+
+When `PGBOUNCER_WORKERS` is greater than 1, the entrypoint automatically:
+
+- Enables `so_reuseport` so all workers bind the same port
+- Assigns each worker a unique `peer_id` and a dedicated Unix socket under `/var/run/pgbouncer/<N>/`
+- Generates a `[peers]` section in each worker's config so query cancellations are correctly routed across workers
+
+> [!NOTE]
+> Connecting to a specific worker's admin console via TCP is not possible when `so_reuseport` is active (the kernel picks the worker). Connect via the worker's Unix socket instead: `psql "host=/var/run/pgbouncer/1 dbname=pgbouncer"`
+
 Kubernetes integration
 ----------------------
 

@@ -67,7 +67,7 @@ function generate_userlist_if_needed() {
 function generate_config_db_entry() {
   printf "\
 ${DB_NAME:-*} = host=${DB_HOST:?"Setup pgbouncer config error! You must set DB_HOST env"} \
-port=${DB_PORT:-5432} auth_user=${DB_USER:-postgres}
+port=${DB_PORT:-5432} auth_user=${DB_USER:-${AUTH_USER:-postgres}}
 ${CLIENT_ENCODING:+client_encoding = ${CLIENT_ENCODING}\n}\
 " >> "${PG_CONFIG_FILE}"
 }

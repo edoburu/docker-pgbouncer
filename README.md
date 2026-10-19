@@ -138,6 +138,9 @@ examples/generate-userlist >> userlist.txt
 You can also connect with a single user to PgBouncer, and from there retrieve the actual database password
 by setting ``AUTH_USER``. See the example from: <https://www.cybertec-postgresql.com/en/pgbouncer-authentication-made-easy/>
 
+The generated database entry uses ``DB_USER`` as its ``auth_user`` when that is set, ``AUTH_USER`` otherwise,
+and falls back to ``postgres``.
+
 Connecting to the admin console
 -------------------------------
 
